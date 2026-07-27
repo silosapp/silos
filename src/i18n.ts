@@ -5,8 +5,11 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
+import { emit, listen } from "@tauri-apps/api/event";
 import it from "./locales/it.json";
 import en from "./locales/en.json";
+
+const LANGUAGE_CHANGED_EVENT = "language-changed";
 
 i18n
   .use(LanguageDetector)
@@ -29,5 +32,21 @@ i18n
       caches: ["localStorage"],
     },
   });
+
+// Every window (dashboard, per-app settings, global settings) boots its own
+// React/i18next instance — changing the language in one doesn't touch the
+// others on its own, so a switch is broadcast to every window via a Tauri
+// event instead of relying on the shared localStorage cache (which only
+// takes effect on that window's next reload).
+listen<string>(LANGUAGE_CHANGED_EVENT, (event) => {
+  if (event.payload !== i18n.language.split("-")[0]) {
+    i18n.changeLanguage(event.payload);
+  }
+});
+
+export function changeLanguageEverywhere(lang: string) {
+  i18n.changeLanguage(lang);
+  emit(LANGUAGE_CHANGED_EVENT, lang);
+}
 
 export default i18n;

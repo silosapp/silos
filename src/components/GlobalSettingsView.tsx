@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api } from "../api";
+import { changeLanguageEverywhere } from "../i18n";
 
 type Section = "language" | "extensions";
 type ToastFn = (message: string, type?: "success" | "error") => void;
@@ -52,7 +53,7 @@ function LanguageSection({ onToast }: { onToast: ToastFn }) {
 
   function save() {
     try {
-      i18n.changeLanguage(draft);
+      changeLanguageEverywhere(draft);
       onToast(t("common.saved"));
     } catch {
       onToast(t("common.saveError"), "error");
