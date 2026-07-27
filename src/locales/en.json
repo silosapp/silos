@@ -1,0 +1,248 @@
+{
+  "dashboard": {
+    "settings": "Settings",
+    "settingsTitle": "Global settings",
+    "searchPlaceholder": "Search for a site to add (e.g. google)",
+    "createLabel": "+ New app",
+    "emptyState": "No apps yet. Search for one above to get started.",
+    "appSettingsTitle": "App settings",
+    "deleteAppTitle": "Delete app",
+    "protectedByPin": ", PIN protected",
+    "pinLockTitle": "PIN protected",
+    "subspaceCount_one": "{{count}} subspace",
+    "subspaceCount_other": "{{count}} subspaces",
+    "deleteConfirmTitle": "Delete \"{{name}}\"?",
+    "deleteConfirmBody_one": "Its {{count}} subspace and related sessions will also be removed. This can't be undone.",
+    "deleteConfirmBody_other": "Its {{count}} subspaces and related sessions will also be removed. This can't be undone.",
+    "deletingLabel": "Deleting…",
+    "deleteLabel": "Delete",
+    "appDeletedToast": "\"{{name}}\" deleted.",
+    "appAddedToast": "\"{{name}}\" added.",
+    "footer": "Silos v{{version}} · {{date}} · {{commit}}"
+  },
+  "appSettings": {
+    "nav": {
+      "info": "Info",
+      "icon": "Icon",
+      "security": "Security",
+      "session": "Session",
+      "details": "Details"
+    },
+    "info": {
+      "title": "Info",
+      "nameLabel": "App name",
+      "urlLabel": "URL",
+      "urlHint": "Default URL used by subspaces without their own start URL.",
+      "runInBackgroundLabel": "Run in background",
+      "runInBackgroundHint": "On close, the window stays alive in the tray instead of actually closing.",
+      "subspaceLoadingHeading": "Subspace loading",
+      "eagerLoadLabel": "Load all subspaces immediately",
+      "eagerLoadHint": "On by default: every subspace starts together with the app, useful for receiving notifications from all of them (e.g. multiple WhatsApp accounts). Turn it off to load them only on first click instead.",
+      "hibernateDelayLabel": "Suspend subspace after (minutes)",
+      "hibernateDelayHint": "Switching to another subspace closes the one you left (freeing memory) after this idle time, unless you come back to it first. 0 = immediately."
+    },
+    "icon": {
+      "title": "Icon",
+      "hint": "The app's icon: used in the Start menu shortcut. The fit/border/padding settings below also apply to every subspace's icon.",
+      "backgroundColorLabel": "Background color",
+      "noneButton": "None",
+      "fitLabel": "Fit",
+      "fitCover": "Fill (crop)",
+      "fitContain": "Original (no crop)",
+      "bordersLabel": "Borders",
+      "bordersRounded": "Rounded",
+      "bordersSquare": "Square",
+      "paddingLabel": "Edge padding"
+    },
+    "security": {
+      "title": "Security",
+      "pinIntro": "Require a PIN to open this app.",
+      "pinActive": "PIN active on this app.",
+      "removePin": "Remove PIN",
+      "lockOnBackgroundLabel": "Also lock when it goes to the tray (background)",
+      "lockDelayLabel": "Lock after",
+      "lockDelayImmediate": "Immediately",
+      "lockDelay1Min": "1 minute",
+      "lockDelay5Min": "5 minutes",
+      "lockDelay10Min": "10 minutes",
+      "newPinLabel": "New PIN",
+      "confirmPinLabel": "Confirm PIN",
+      "pinPlaceholder": "4-8 digits",
+      "enablePinButton": "Enable PIN",
+      "pinLengthError": "The PIN must be 4 to 8 digits long.",
+      "pinMismatchError": "The PINs entered don't match.",
+      "pinSetError": "Couldn't set the PIN.",
+      "tlsHeading": "TLS certificates",
+      "ignoreCertErrorsLabel": "Ignore untrusted certificate warnings",
+      "ignoreCertErrorsHint": "Off by default. Silently accepts expired/self-signed/hostname-mismatched certificates for every subspace of this app, without showing WebView2's warning. Only useful for a local/dev server with a self-signed certificate you know about — don't enable it for public sites: it makes the app vulnerable to man-in-the-middle attacks on that connection."
+    },
+    "session": {
+      "title": "Session",
+      "hint": "Resets every subspace of this app: cookies, logins, and cache will be cleared for each one.",
+      "dangerZone": "Danger zone",
+      "confirmReset": "Confirm reset",
+      "resetAllButton": "Reset all sessions"
+    },
+    "details": {
+      "title": "Details",
+      "createdAtLabel": "Created on",
+      "folderPathLabel": "Folder path",
+      "totalSizeLabel": "Total size",
+      "calculating": "Calculating...",
+      "perSubspaceSizeLabel": "Size per subspace",
+      "refreshButton": "Refresh",
+      "unknownDate": "-"
+    }
+  },
+  "globalSettings": {
+    "nav": {
+      "language": "Language",
+      "extensions": "Extensions"
+    },
+    "language": {
+      "title": "Language",
+      "languageLabel": "App language"
+    },
+    "extensions": {
+      "title": "Extensions",
+      "macosIconsApiKeyLabel": "macOSicons API key",
+      "apiKeyPlaceholder": "Paste your API key here",
+      "apiKeyHintPrefix": "Used by the icon search on",
+      "apiKeyHintMiddle": ". Free plan: 50 searches/month. Generate a key at",
+      "saved": "Saved."
+    }
+  },
+  "confirmTyped": {
+    "hintPrefix": "Type",
+    "hintSuffix": "to confirm.",
+    "cancel": "Cancel"
+  },
+  "iconCrop": {
+    "title": "Crop icon",
+    "zoomLabel": "Zoom",
+    "cancel": "Cancel",
+    "applying": "Applying...",
+    "applyButton": "Apply crop"
+  },
+  "iconPicker": {
+    "faviconButton": "Site favicon",
+    "chooseImageButton": "Choose image...",
+    "pasteButton": "Paste from clipboard",
+    "searchMacosIconsButton": "Search icon (macOSicons)",
+    "fromUrlButton": "From image URL...",
+    "cropButton": "Crop/edit...",
+    "noIconFoundError": "No icon found on the site.",
+    "noClipboardImageError": "No image found on the clipboard.",
+    "imageFilterName": "Images",
+    "macSearch": {
+      "label": "Search macOSicons.com",
+      "placeholder": "e.g. safari",
+      "searching": "Searching...",
+      "searchButton": "Search",
+      "hint": "Free plan: 50 searches/month. API key in Global settings.",
+      "noResultsError": "No icon found."
+    },
+    "fromUrl": {
+      "label": "Direct URL to an image",
+      "placeholder": "https://.../icon.png",
+      "useButton": "Use",
+      "hint": "png, jpg, gif, webp, or ico."
+    }
+  },
+  "pinPrompt": {
+    "message": "Enter the PIN to reopen the app.",
+    "wrongPinError": "Wrong PIN.",
+    "placeholder": "PIN",
+    "unlockButton": "Unlock",
+    "cancel": "Cancel"
+  },
+  "quitConfirm": {
+    "message": "Close the app for good? It will also exit the tray.",
+    "closeButton": "Close",
+    "cancel": "Cancel"
+  },
+  "settingsView": {
+    "nav": {
+      "info": "Info",
+      "session": "Session",
+      "icon": "Icon"
+    },
+    "info": {
+      "title": "Info",
+      "titleLabel": "Title",
+      "startUrlLabel": "Start URL",
+      "startUrlHint": "Empty = use the app's URL ({{url}})"
+    },
+    "session": {
+      "title": "Session",
+      "sharingLabel": "Sharing",
+      "ownSession": "Own session",
+      "shareWith": "Share with {{name}}",
+      "sharingHint": "Subspaces with the same session share cookies and logins.",
+      "dangerZone": "Danger zone",
+      "confirmClear": "Confirm clear",
+      "clearDataButton": "Clear session data",
+      "confirmDelete": "Confirm delete",
+      "deleteSubspaceButton": "Delete subspace"
+    },
+    "icon": {
+      "title": "Icon",
+      "backgroundColorLabel": "Background color",
+      "noneButton": "None",
+      "paddingLabel": "Edge padding",
+      "paddingHint": "Applies to every subspace icon in this app.",
+      "shapeHint": "Icon fit and shape are set app-wide, in App settings."
+    }
+  },
+  "siteSearch": {
+    "defaultSearchPlaceholder": "Search for a site (e.g. google)",
+    "defaultConfirmLabel": "Create",
+    "searching": "Searching...",
+    "searchButton": "Search",
+    "closeTitle": "Close",
+    "noIconFoundError": "No icon found automatically: try an image, or search for one.",
+    "unreachableSiteError": "Site unreachable: check the URL and title, or set the icon by hand.",
+    "backgroundColorLabel": "Background color",
+    "noneButton": "None",
+    "fitLabel": "Fit",
+    "fitCover": "Fill (crop)",
+    "fitContain": "Original (no crop)",
+    "bordersLabel": "Borders",
+    "bordersRounded": "Rounded",
+    "bordersSquare": "Square",
+    "paddingLabel": "Edge padding",
+    "titleLabel": "Title",
+    "urlLabel": "URL",
+    "cancel": "Cancel"
+  },
+  "toolbar": {
+    "newTabTitle": "New tab",
+    "newTabFallbackTitle": "New tab",
+    "backTitle": "Back",
+    "forwardTitle": "Forward",
+    "reloadTitle": "Reload",
+    "homeTitle": "Home",
+    "urlPlaceholder": "Address"
+  },
+  "appSidebar": {
+    "addSubspaceTitle": "Add subspace",
+    "addSubspaceLabel": "Add subspace",
+    "collapseSidebarTitle": "Collapse sidebar",
+    "expandSidebarTitle": "Expand sidebar",
+    "collapseSidebarLabel": "Collapse sidebar",
+    "expandSidebarLabel": "Expand sidebar",
+    "openDashboardTitle": "Open dashboard",
+    "openDashboardLabel": "Open dashboard",
+    "appSettingsTitle": "App settings",
+    "appSettingsLabel": "App settings",
+    "quitTitle": "Exit the app (also closes it from the tray)",
+    "quitLabel": "Exit the app"
+  },
+  "addSubspacePopup": {
+    "searchPlaceholder": "Search for a site for the subspace",
+    "createLabel": "Create",
+    "sessionLabel": "Session",
+    "isolatedSession": "Isolated (new)",
+    "sharedSessionWith": "Shared with: {{label}}"
+  }
+}

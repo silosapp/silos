@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { WebApp } from "../types";
 import { api } from "../api";
 import { PinPrompt } from "./PinPrompt";
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function UnlockAppScreen({ appId }: Props) {
+  const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
 
   useEffect(() => {
@@ -19,7 +21,7 @@ export function UnlockAppScreen({ appId }: Props) {
   return (
     <PinPrompt
       title={app.name}
-      message="Inserisci il PIN per riaprire l'app."
+      message={t("pinPrompt.message")}
       onSubmit={(pin) => api.unlockAppWindow(appId, pin)}
       onCancel={() => api.cancelAppUnlock(appId)}
     />

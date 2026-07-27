@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readImage } from "@tauri-apps/plugin-clipboard-manager";
 import { api } from "../api";
@@ -44,6 +45,7 @@ export function IconPicker({
   onFetchFavicon,
   onIconResolved,
 }: Props) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [macSearchOpen, setMacSearchOpen] = useState(false);
@@ -77,7 +79,7 @@ export function IconPicker({
       const iconPath = await onFetchFavicon();
       onIconResolved(iconPath);
     } catch {
-      setError("Nessuna icona trovata sul sito.");
+      setError(t("iconPicker.noIconFoundError"));
     } finally {
       setBusy(false);
     }
@@ -86,7 +88,7 @@ export function IconPicker({
   async function pickImage() {
     const path = await open({
       multiple: false,
-      filters: [{ name: "Immagini", extensions: ["png", "jpg", "jpeg", "gif", "webp", "ico", "svg"] }],
+      filters: [{ name: t("iconPicker.imageFilterName"), extensions: ["png", "jpg", "jpeg", "gif", "webp", "ico", "svg"] }],
     });
     if (!path || Array.isArray(path)) return;
     setBusy(true);
@@ -111,7 +113,7 @@ export function IconPicker({
       const iconPath = await api.saveClipboardImage(rgba, size.width, size.height);
       onIconResolved(iconPath);
     } catch {
-      setError("Nessuna immagine trovata negli appunti.");
+      setError(t("iconPicker.noClipboardImageError"));
     } finally {
       setBusy(false);
     }
@@ -144,19 +146,19 @@ export function IconPicker({
 
         <div className="icon-source-buttons">
           <button type="button" className="ghost" disabled={busy} onClick={retryFavicon}>
-            Favicon del sito
+            {t("iconPicker.faviconButton")}
           </button>
           <button type="button" className="ghost" disabled={busy} onClick={pickImage}>
-            Scegli immagine...
+            {t("iconPicker.chooseImageButton")}
           </button>
           <button type="button" className="ghost" disabled={busy} onClick={pasteImage}>
-            Incolla dagli appunti
+            {t("iconPicker.pasteButton")}
           </button>
           <button type="button" className="ghost" disabled={busy} onClick={() => setMacSearchOpen((v) => !v)}>
-            Cerca icona (macOSicons)
+            {t("iconPicker.searchMacosIconsButton")}
           </button>
           <button type="button" className="ghost" disabled={busy} onClick={() => setUrlIconOpen((v) => !v)}>
-            Da URL immagine...
+            {t("iconPicker.fromUrlButton")}
           </button>
           <button
             type="button"
@@ -164,7 +166,7 @@ export function IconPicker({
             disabled={busy || !iconUrl || !iconPath}
             onClick={() => setCropOpen(true)}
           >
-            Ritaglia/modifica...
+            {t("iconPicker.cropButton")}
           </button>
         </div>
       </div>
@@ -230,6 +232,7 @@ function MacIconSearch({
   setBusy: (v: boolean) => void;
   onPicked: (iconPath: string) => void;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<MacIconResult[]>([]);
@@ -243,7 +246,7 @@ function MacIconSearch({
     try {
       const found = await api.searchMacosIcons(query.trim());
       setResults(found);
-      if (found.length === 0) setError("Nessuna icona trovata.");
+      if (found.length === 0) setError(t("iconPicker.macSearch.noResultsError"));
     } catch (err) {
       setError(String(err));
     } finally {
@@ -264,14 +267,14 @@ function MacIconSearch({
   return (
     <div className="brand-image-search">
       <label className="settings-field">
-        <span>Cerca su macOSicons.com</span>
+        <span>{t("iconPicker.macSearch.label")}</span>
         <form className="brand-icon-search" onSubmit={search}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="es. safari" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("iconPicker.macSearch.placeholder")} />
           <button type="button" className="ghost" disabled={loading || busy} onClick={search}>
-            {loading ? "Cerco..." : "Cerca"}
+            {loading ? t("iconPicker.macSearch.searching") : t("iconPicker.macSearch.searchButton")}
           </button>
         </form>
-        <small>Piano free: 50 ricerche/mese. API key nelle Impostazioni globali.</small>
+        <small>{t("iconPicker.macSearch.hint")}</small>
       </label>
 
       {error && <div className="site-confirm-error">{error}</div>}
@@ -306,6 +309,7 @@ function IconFromUrl({
   setBusy: (v: boolean) => void;
   onPicked: (iconPath: string) => void;
 }) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -327,18 +331,18 @@ function IconFromUrl({
   return (
     <div className="brand-image-search">
       <label className="settings-field">
-        <span>URL diretto a un'immagine</span>
+        <span>{t("iconPicker.fromUrl.label")}</span>
         <form className="brand-icon-search" onSubmit={apply}>
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://.../icona.png"
+            placeholder={t("iconPicker.fromUrl.placeholder")}
           />
           <button type="button" className="ghost" disabled={busy} onClick={apply}>
-            Usa
+            {t("iconPicker.fromUrl.useButton")}
           </button>
         </form>
-        <small>png, jpg, gif, webp o ico.</small>
+        <small>{t("iconPicker.fromUrl.hint")}</small>
       </label>
 
       {error && <div className="site-confirm-error">{error}</div>}

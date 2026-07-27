@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import {
   DndContext,
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function AppSidebar({ appId }: Props) {
+  const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
   const [activeSubspaceId, setActiveSubspaceId] = useState<string | null>(null);
   const [iconCache, setIconCache] = useState<Record<string, string>>({});
@@ -160,39 +162,39 @@ export function AppSidebar({ appId }: Props) {
       </DndContext>
 
       <div className="rail-bottom">
-        <button className="rail-bottom-btn" onClick={() => api.openAddSubspacePopup(appId)} title="Aggiungi sottospazio">
+        <button className="rail-bottom-btn" onClick={() => api.openAddSubspacePopup(appId)} title={t("appSidebar.addSubspaceTitle")}>
           <span className="rail-icon rail-icon-ghost">+</span>
-          {expanded && <span className="rail-row-name">Aggiungi sottospazio</span>}
+          {expanded && <span className="rail-row-name">{t("appSidebar.addSubspaceLabel")}</span>}
         </button>
         <button
           className="rail-bottom-btn"
           onClick={handleToggleExpanded}
-          title={expanded ? "Riduci sidebar" : "Espandi sidebar"}
+          title={expanded ? t("appSidebar.collapseSidebarTitle") : t("appSidebar.expandSidebarTitle")}
         >
           <span className="rail-icon rail-icon-ghost">{expanded ? "‹" : "›"}</span>
-          {expanded && <span className="rail-row-name">Riduci sidebar</span>}
+          {expanded && <span className="rail-row-name">{t("appSidebar.collapseSidebarLabel")}</span>}
         </button>
-        <button className="rail-bottom-btn" onClick={() => api.openDashboard()} title="Apri dashboard">
+        <button className="rail-bottom-btn" onClick={() => api.openDashboard()} title={t("appSidebar.openDashboardTitle")}>
           <span className="rail-icon rail-icon-ghost">
             <HomeIcon />
           </span>
-          {expanded && <span className="rail-row-name">Apri dashboard</span>}
+          {expanded && <span className="rail-row-name">{t("appSidebar.openDashboardLabel")}</span>}
         </button>
-        <button className="rail-bottom-btn" onClick={() => api.openAppSettings(appId)} title="Impostazioni app">
+        <button className="rail-bottom-btn" onClick={() => api.openAppSettings(appId)} title={t("appSidebar.appSettingsTitle")}>
           <span className="rail-icon rail-icon-ghost">
             <GearIcon />
           </span>
-          {expanded && <span className="rail-row-name">Impostazioni app</span>}
+          {expanded && <span className="rail-row-name">{t("appSidebar.appSettingsLabel")}</span>}
         </button>
         <button
           className="rail-bottom-btn"
           onClick={() => api.openQuitConfirmPopup(appId)}
-          title="Chiudi definitivamente (esce anche dalla tray)"
+          title={t("appSidebar.quitTitle")}
         >
           <span className="rail-icon rail-icon-ghost rail-icon-danger">
             <PowerIcon />
           </span>
-          {expanded && <span className="rail-row-name rail-row-name-danger">Chiudi definitivamente</span>}
+          {expanded && <span className="rail-row-name rail-row-name-danger">{t("appSidebar.quitLabel")}</span>}
         </button>
       </div>
     </aside>

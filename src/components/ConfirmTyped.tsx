@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   label: string;
@@ -8,12 +9,13 @@ interface Props {
 }
 
 export function ConfirmTyped({ label, onConfirm, onCancel, busy }: Props) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
 
   return (
     <div className="confirm-typed">
       <p className="confirm-typed-hint">
-        Scrivi <strong>OK</strong> per confermare.
+        {t("confirmTyped.hintPrefix")} <strong>OK</strong> {t("confirmTyped.hintSuffix")}
       </p>
       <div className="btn-row">
         <input
@@ -28,7 +30,7 @@ export function ConfirmTyped({ label, onConfirm, onCancel, busy }: Props) {
           {label}
         </button>
         <button className="ghost" onClick={onCancel} disabled={busy}>
-          Annulla
+          {t("confirmTyped.cancel")}
         </button>
       </div>
     </div>

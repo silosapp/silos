@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { AppInfo, WebApp } from "../types";
 import { api } from "../api";
 import { IconPicker } from "./IconPicker";
@@ -12,6 +13,7 @@ interface Props {
 type Section = "info" | "icon" | "security" | "session" | "details";
 
 export function AppSettingsView({ appId }: Props) {
+  const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
   const [section, setSection] = useState<Section>("info");
   const [iconUrl, setIconUrl] = useState<string | undefined>();
@@ -41,22 +43,22 @@ export function AppSettingsView({ appId }: Props) {
     <div className="settings-window">
       <nav className="settings-nav">
         <button className={section === "info" ? "active" : ""} onClick={() => setSection("info")}>
-          Info
+          {t("appSettings.nav.info")}
         </button>
         <button className={section === "icon" ? "active" : ""} onClick={() => setSection("icon")}>
-          Icona
+          {t("appSettings.nav.icon")}
         </button>
         <button
           className={section === "security" ? "active" : ""}
           onClick={() => setSection("security")}
         >
-          Sicurezza
+          {t("appSettings.nav.security")}
         </button>
         <button className={section === "session" ? "active" : ""} onClick={() => setSection("session")}>
-          Sessione
+          {t("appSettings.nav.session")}
         </button>
         <button className={section === "details" ? "active" : ""} onClick={() => setSection("details")}>
-          Informazioni
+          {t("appSettings.nav.details")}
         </button>
       </nav>
 
@@ -72,6 +74,7 @@ export function AppSettingsView({ appId }: Props) {
 }
 
 function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(app.name);
   const [url, setUrl] = useState(app.url);
   const [hibernateMinutes, setHibernateMinutes] = useState(String(app.hibernate_delay_secs / 60));
@@ -119,48 +122,48 @@ function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void })
 
   return (
     <div className="settings-section">
-      <h2>Info</h2>
+      <h2>{t("appSettings.info.title")}</h2>
 
       <label className="settings-field">
-        <span>Nome app</span>
+        <span>{t("appSettings.info.nameLabel")}</span>
         <input value={name} onChange={(e) => setName(e.target.value)} onBlur={saveName} />
       </label>
 
       <label className="settings-field">
-        <span>URL</span>
+        <span>{t("appSettings.info.urlLabel")}</span>
         <input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={saveUrl} />
-        <small>URL predefinito usato dai sottospazi senza un URL iniziale proprio.</small>
+        <small>{t("appSettings.info.urlHint")}</small>
       </label>
 
       <div className="settings-field">
         <label className="settings-field-row">
-          <span>Esegui in background</span>
+          <span>{t("appSettings.info.runInBackgroundLabel")}</span>
           <input
             type="checkbox"
             checked={app.run_in_background}
             onChange={(e) => toggleBackground(e.target.checked)}
           />
         </label>
-        <small>Alla chiusura, la finestra resta attiva nella tray invece di chiudersi davvero.</small>
+        <small>{t("appSettings.info.runInBackgroundHint")}</small>
       </div>
 
-      <h3 className="settings-group-heading">Caricamento sottospazi</h3>
+      <h3 className="settings-group-heading">{t("appSettings.info.subspaceLoadingHeading")}</h3>
 
       <div className="settings-field">
         <label className="settings-field-row">
-          <span>Carica subito tutti i sottospazi</span>
+          <span>{t("appSettings.info.eagerLoadLabel")}</span>
           <input
             type="checkbox"
             checked={app.eager_load_subspaces}
             onChange={(e) => toggleEagerLoad(e.target.checked)}
           />
         </label>
-        <small>Attivo di default: tutti i sottospazi partono insieme all'app, utile per ricevere notifiche da tutti (es. più account WhatsApp). Disattivalo per caricarli solo al primo click.</small>
+        <small>{t("appSettings.info.eagerLoadHint")}</small>
       </div>
 
       {!app.eager_load_subspaces && (
         <label className="settings-field">
-          <span>Sospendi sottospazio dopo (minuti)</span>
+          <span>{t("appSettings.info.hibernateDelayLabel")}</span>
           <input
             type="number"
             min={0}
@@ -169,7 +172,7 @@ function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void })
             onChange={(e) => setHibernateMinutes(e.target.value)}
             onBlur={saveHibernateDelay}
           />
-          <small>Passando a un altro sottospazio, quello lasciato viene chiuso (libera memoria) dopo questo tempo di inattività, se non ci torni prima. 0 = subito.</small>
+          <small>{t("appSettings.info.hibernateDelayHint")}</small>
         </label>
       )}
     </div>
@@ -185,6 +188,7 @@ function IconSection({
   iconUrl?: string;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation();
   const [padding, setPadding] = useState(app.icon_style.padding_percent);
 
   useEffect(() => {
@@ -215,11 +219,8 @@ function IconSection({
 
   return (
     <div className="settings-section">
-      <h2>Icona</h2>
-      <small>
-        Icona dell'app: usata nel collegamento del menu Start. L'adattamento/bordi/padding sotto
-        si applicano anche alle icone di tutti i sottospazi.
-      </small>
+      <h2>{t("appSettings.icon.title")}</h2>
+      <small>{t("appSettings.icon.hint")}</small>
 
       <div style={{ marginTop: "1rem" }}>
         <IconPicker
@@ -237,7 +238,7 @@ function IconSection({
       </div>
 
       <label className="settings-field settings-field-row">
-        <span>Colore sfondo</span>
+        <span>{t("appSettings.icon.backgroundColorLabel")}</span>
         <span className="color-row">
           <input
             type="color"
@@ -245,35 +246,35 @@ function IconSection({
             onChange={(e) => setBackground(e.target.value)}
           />
           <button className="ghost" onClick={() => setBackground(null)}>
-            Nessuno
+            {t("appSettings.icon.noneButton")}
           </button>
         </span>
       </label>
 
       <label className="settings-field" style={{ marginTop: "1rem" }}>
-        <span>Adattamento</span>
+        <span>{t("appSettings.icon.fitLabel")}</span>
         <select
           value={app.icon_style.fit}
           onChange={(e) => update({ fit: e.target.value as "cover" | "contain" })}
         >
-          <option value="cover">Riempi (ritaglia)</option>
-          <option value="contain">Originale (nessun ritaglio)</option>
+          <option value="cover">{t("appSettings.icon.fitCover")}</option>
+          <option value="contain">{t("appSettings.icon.fitContain")}</option>
         </select>
       </label>
 
       <label className="settings-field settings-field-row">
-        <span>Bordi</span>
+        <span>{t("appSettings.icon.bordersLabel")}</span>
         <select
           value={app.icon_style.rounded ? "rounded" : "square"}
           onChange={(e) => update({ rounded: e.target.value === "rounded" })}
         >
-          <option value="rounded">Arrotondati</option>
-          <option value="square">Squadrati</option>
+          <option value="rounded">{t("appSettings.icon.bordersRounded")}</option>
+          <option value="square">{t("appSettings.icon.bordersSquare")}</option>
         </select>
       </label>
 
       <label className="settings-field" style={{ marginTop: "1rem" }}>
-        <span>Padding dal bordo</span>
+        <span>{t("appSettings.icon.paddingLabel")}</span>
         <span className="icon-padding-row">
           <input
             type="range"
@@ -297,6 +298,7 @@ function IconSection({
 }
 
 function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => void }) {
+  const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -306,11 +308,11 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
   async function enablePin() {
     setError(null);
     if (!/^\d{4,8}$/.test(pin)) {
-      setError("Il PIN deve avere tra 4 e 8 cifre.");
+      setError(t("appSettings.security.pinLengthError"));
       return;
     }
     if (pin !== confirmPin) {
-      setError("I PIN inseriti non coincidono.");
+      setError(t("appSettings.security.pinMismatchError"));
       return;
     }
     try {
@@ -319,7 +321,7 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
       setConfirmPin("");
       onChanged();
     } catch {
-      setError("Impossibile impostare il PIN.");
+      setError(t("appSettings.security.pinSetError"));
     }
   }
 
@@ -345,20 +347,20 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
 
   return (
     <div className="settings-section">
-      <h2>Sicurezza</h2>
-      <p>Richiedi un PIN per aprire questa app.</p>
+      <h2>{t("appSettings.security.title")}</h2>
+      <p>{t("appSettings.security.pinIntro")}</p>
 
       {hasPin ? (
         <>
           <div className="settings-danger-zone">
-            <p>PIN attivo su questa app.</p>
+            <p>{t("appSettings.security.pinActive")}</p>
             <button className="danger-ghost" onClick={removePin}>
-              Rimuovi PIN
+              {t("appSettings.security.removePin")}
             </button>
           </div>
 
           <label className="settings-field settings-field-row" style={{ marginTop: "1rem" }}>
-            <span>Blocca anche quando va in tray (background)</span>
+            <span>{t("appSettings.security.lockOnBackgroundLabel")}</span>
             <input
               type="checkbox"
               checked={app.pin_lock_on_background}
@@ -368,15 +370,15 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
 
           {app.pin_lock_on_background && (
             <label className="settings-field">
-              <span>Blocca dopo</span>
+              <span>{t("appSettings.security.lockDelayLabel")}</span>
               <select
                 value={app.pin_lock_delay_secs}
                 onChange={(e) => changeDelay(Number(e.target.value))}
               >
-                <option value={0}>Subito</option>
-                <option value={60}>1 minuto</option>
-                <option value={300}>5 minuti</option>
-                <option value={600}>10 minuti</option>
+                <option value={0}>{t("appSettings.security.lockDelayImmediate")}</option>
+                <option value={60}>{t("appSettings.security.lockDelay1Min")}</option>
+                <option value={300}>{t("appSettings.security.lockDelay5Min")}</option>
+                <option value={600}>{t("appSettings.security.lockDelay10Min")}</option>
               </select>
             </label>
           )}
@@ -384,55 +386,51 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
       ) : (
         <>
           <label className="settings-field">
-            <span>Nuovo PIN</span>
+            <span>{t("appSettings.security.newPinLabel")}</span>
             <input
               type="password"
               inputMode="numeric"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              placeholder="4-8 cifre"
+              placeholder={t("appSettings.security.pinPlaceholder")}
             />
           </label>
           <label className="settings-field">
-            <span>Conferma PIN</span>
+            <span>{t("appSettings.security.confirmPinLabel")}</span>
             <input
               type="password"
               inputMode="numeric"
               value={confirmPin}
               onChange={(e) => setConfirmPin(e.target.value)}
-              placeholder="4-8 cifre"
+              placeholder={t("appSettings.security.pinPlaceholder")}
             />
           </label>
           {error && <div className="modal-error">{error}</div>}
           <button onClick={enablePin} disabled={!pin || !confirmPin}>
-            Attiva PIN
+            {t("appSettings.security.enablePinButton")}
           </button>
         </>
       )}
 
-      <h3 className="settings-group-heading">Certificati TLS</h3>
+      <h3 className="settings-group-heading">{t("appSettings.security.tlsHeading")}</h3>
 
       <div className="settings-field">
         <label className="settings-field-row">
-          <span>Ignora avvisi certificato non attendibile</span>
+          <span>{t("appSettings.security.ignoreCertErrorsLabel")}</span>
           <input
             type="checkbox"
             checked={app.ignore_certificate_errors}
             onChange={(e) => toggleIgnoreCertificateErrors(e.target.checked)}
           />
         </label>
-        <small>
-          Disattivo di default. Accetta silenziosamente certificati scaduti/self-signed/con nome host
-          errato per tutti i sottospazi di questa app, senza mostrare l'avviso di WebView2. Utile solo
-          per un server locale/di sviluppo con certificato self-signed che conosci — non attivarlo per
-          siti pubblici: rende l'app vulnerabile a man-in-the-middle su quella connessione.
-        </small>
+        <small>{t("appSettings.security.ignoreCertErrorsHint")}</small>
       </div>
     </div>
   );
 }
 
 function SessionSection({ app }: { app: WebApp }) {
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
 
   async function reset() {
@@ -442,19 +440,16 @@ function SessionSection({ app }: { app: WebApp }) {
 
   return (
     <div className="settings-section">
-      <h2>Sessione</h2>
-      <p>
-        Reimposta tutti i sottospazi di questa app: cookie, login e cache verranno cancellati per
-        ognuno di essi.
-      </p>
+      <h2>{t("appSettings.session.title")}</h2>
+      <p>{t("appSettings.session.hint")}</p>
 
       <div className="settings-danger-zone">
-        <h3>Zona pericolosa</h3>
+        <h3>{t("appSettings.session.dangerZone")}</h3>
         {confirming ? (
-          <ConfirmTyped label="Conferma reset" onConfirm={reset} onCancel={() => setConfirming(false)} />
+          <ConfirmTyped label={t("appSettings.session.confirmReset")} onConfirm={reset} onCancel={() => setConfirming(false)} />
         ) : (
           <button className="danger-ghost" onClick={() => setConfirming(true)}>
-            Reimposta tutte le sessioni
+            {t("appSettings.session.resetAllButton")}
           </button>
         )}
       </div>
@@ -474,9 +469,9 @@ function formatBytes(bytes: number): string {
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unit]}`;
 }
 
-function formatDate(unixSeconds: number): string {
-  if (!unixSeconds) return "-";
-  return new Date(unixSeconds * 1000).toLocaleDateString("it-IT", {
+function formatDate(unixSeconds: number, locale: string, unknownLabel: string): string {
+  if (!unixSeconds) return unknownLabel;
+  return new Date(unixSeconds * 1000).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -484,6 +479,7 @@ function formatDate(unixSeconds: number): string {
 }
 
 function DetailsSection({ app }: { app: WebApp }) {
+  const { t, i18n } = useTranslation();
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -502,26 +498,26 @@ function DetailsSection({ app }: { app: WebApp }) {
 
   return (
     <div className="settings-section">
-      <h2>Informazioni</h2>
+      <h2>{t("appSettings.details.title")}</h2>
 
       <label className="settings-field settings-field-row">
-        <span>Data di creazione</span>
-        <span>{formatDate(app.created_at)}</span>
+        <span>{t("appSettings.details.createdAtLabel")}</span>
+        <span>{formatDate(app.created_at, i18n.language, t("appSettings.details.unknownDate"))}</span>
       </label>
 
       <label className="settings-field">
-        <span>Percorso cartella</span>
+        <span>{t("appSettings.details.folderPathLabel")}</span>
         <input readOnly value={info?.folder_path ?? ""} onFocus={(e) => e.currentTarget.select()} />
       </label>
 
       <label className="settings-field settings-field-row">
-        <span>Dimensione totale</span>
-        <span>{loading ? "Calcolo..." : info ? formatBytes(info.total_size_bytes) : "-"}</span>
+        <span>{t("appSettings.details.totalSizeLabel")}</span>
+        <span>{loading ? t("appSettings.details.calculating") : info ? formatBytes(info.total_size_bytes) : t("appSettings.details.unknownDate")}</span>
       </label>
 
       {info && info.subspaces.length > 0 && (
         <div className="settings-field" style={{ marginTop: "1rem" }}>
-          <span>Dimensione per sottospazio</span>
+          <span>{t("appSettings.details.perSubspaceSizeLabel")}</span>
           {info.subspaces.map((s) => (
             <div key={s.id} className="settings-field settings-field-row" style={{ marginBottom: 0 }}>
               <span>{s.name}</span>
@@ -532,7 +528,7 @@ function DetailsSection({ app }: { app: WebApp }) {
       )}
 
       <button className="ghost" style={{ marginTop: "1rem" }} onClick={load} disabled={loading}>
-        Aggiorna
+        {t("appSettings.details.refreshButton")}
       </button>
     </div>
   );

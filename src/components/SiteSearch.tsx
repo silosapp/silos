@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { api } from "../api";
 import type { SiteInfo } from "../types";
 import { IconPicker } from "./IconPicker";
@@ -59,13 +60,16 @@ export function SiteSearch({
   initial,
   onConfirm,
   onCancel,
-  searchPlaceholder = "Cerca sito (es. google)",
-  confirmLabel = "Crea",
+  searchPlaceholder,
+  confirmLabel,
   showBackground = false,
   defaultBackground = DEFAULT_ICON_BG,
   showShape = false,
   extraFields,
 }: Props) {
+  const { t } = useTranslation();
+  const effectiveSearchPlaceholder = searchPlaceholder ?? t("siteSearch.defaultSearchPlaceholder");
+  const effectiveConfirmLabel = confirmLabel ?? t("siteSearch.defaultConfirmLabel");
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +114,7 @@ export function SiteSearch({
         paddingPercent: 0,
       });
       if (!info.icon_path) {
-        setError("Nessuna icona trovata automaticamente: prova con un'immagine o cercane una.");
+        setError(t("siteSearch.noIconFoundError"));
       }
     } catch {
       setResolved({
@@ -122,7 +126,7 @@ export function SiteSearch({
         rounded: true,
         paddingPercent: 0,
       });
-      setError("Sito non raggiungibile: verifica URL e titolo, o modifica l'icona a mano.");
+      setError(t("siteSearch.unreachableSiteError"));
     } finally {
       setSearching(false);
     }
@@ -157,13 +161,13 @@ export function SiteSearch({
           autoFocus={!initial}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={searchPlaceholder}
+          placeholder={effectiveSearchPlaceholder}
         />
         <button type="submit" disabled={searching}>
-          {searching ? "Cerco..." : "Cerca"}
+          {searching ? t("siteSearch.searching") : t("siteSearch.searchButton")}
         </button>
         {!initial && (query || resolved) && (
-          <button type="button" className="ghost site-search-clear" onClick={reset} title="Chiudi">
+          <button type="button" className="ghost site-search-clear" onClick={reset} title={t("siteSearch.closeTitle")}>
             <CloseIcon />
           </button>
         )}
@@ -188,7 +192,7 @@ export function SiteSearch({
 
           {showBackground && (
             <label className="settings-field settings-field-row">
-              <span>Colore sfondo</span>
+              <span>{t("siteSearch.backgroundColorLabel")}</span>
               <span className="color-row">
                 <input
                   type="color"
@@ -196,7 +200,7 @@ export function SiteSearch({
                   onChange={(e) => setResolved({ ...resolved, background: e.target.value })}
                 />
                 <button type="button" className="ghost" onClick={() => setResolved({ ...resolved, background: null })}>
-                  Nessuno
+                  {t("siteSearch.noneButton")}
                 </button>
               </span>
             </label>
@@ -205,29 +209,29 @@ export function SiteSearch({
           {showShape && (
             <>
               <label className="settings-field settings-field-row">
-                <span>Adattamento</span>
+                <span>{t("siteSearch.fitLabel")}</span>
                 <select
                   value={resolved.fit}
                   onChange={(e) => setResolved({ ...resolved, fit: e.target.value as "cover" | "contain" })}
                 >
-                  <option value="cover">Riempi (ritaglia)</option>
-                  <option value="contain">Originale (nessun ritaglio)</option>
+                  <option value="cover">{t("siteSearch.fitCover")}</option>
+                  <option value="contain">{t("siteSearch.fitContain")}</option>
                 </select>
               </label>
 
               <label className="settings-field settings-field-row">
-                <span>Bordi</span>
+                <span>{t("siteSearch.bordersLabel")}</span>
                 <select
                   value={resolved.rounded ? "rounded" : "square"}
                   onChange={(e) => setResolved({ ...resolved, rounded: e.target.value === "rounded" })}
                 >
-                  <option value="rounded">Arrotondati</option>
-                  <option value="square">Squadrati</option>
+                  <option value="rounded">{t("siteSearch.bordersRounded")}</option>
+                  <option value="square">{t("siteSearch.bordersSquare")}</option>
                 </select>
               </label>
 
               <label className="settings-field">
-                <span>Padding dal bordo</span>
+                <span>{t("siteSearch.paddingLabel")}</span>
                 <span className="icon-padding-row">
                   <input
                     type="range"
@@ -257,12 +261,12 @@ export function SiteSearch({
           )}
 
           <label className="settings-field">
-            <span>Titolo</span>
+            <span>{t("siteSearch.titleLabel")}</span>
             <input value={resolved.name} onChange={(e) => setResolved({ ...resolved, name: e.target.value })} />
           </label>
 
           <label className="settings-field">
-            <span>URL</span>
+            <span>{t("siteSearch.urlLabel")}</span>
             <input value={resolved.url} onChange={(e) => setResolved({ ...resolved, url: e.target.value })} />
           </label>
 
@@ -271,11 +275,11 @@ export function SiteSearch({
           <div className="site-search-actions">
             {onCancel && (
               <button type="button" className="ghost" onClick={onCancel}>
-                Annulla
+                {t("siteSearch.cancel")}
               </button>
             )}
             <button type="button" onClick={handleConfirm}>
-              {confirmLabel}
+              {effectiveConfirmLabel}
             </button>
           </div>
         </div>

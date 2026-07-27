@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { api } from "../api";
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function QuitConfirmPopup({ appId }: Props) {
+  const { t } = useTranslation();
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Escape") getCurrentWindow().close();
   }
@@ -23,13 +25,13 @@ export function QuitConfirmPopup({ appId }: Props) {
 
   return (
     <div className="quit-confirm-popup" onKeyDown={handleKeyDown}>
-      <p>Chiudere definitivamente l'app? Uscirà anche dalla tray.</p>
+      <p>{t("quitConfirm.message")}</p>
       <div className="btn-row">
         <button className="danger-ghost" onClick={confirmQuit} autoFocus>
-          Chiudi
+          {t("quitConfirm.closeButton")}
         </button>
         <button className="ghost" onClick={() => getCurrentWindow().close()}>
-          Annulla
+          {t("quitConfirm.cancel")}
         </button>
       </div>
     </div>

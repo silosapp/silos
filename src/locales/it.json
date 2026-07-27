@@ -1,0 +1,248 @@
+{
+  "dashboard": {
+    "settings": "Impostazioni",
+    "settingsTitle": "Impostazioni globali",
+    "searchPlaceholder": "Cerca sito da aggiungere (es. google)",
+    "createLabel": "+ Nuova app",
+    "emptyState": "Nessuna app ancora. Cercane una sopra per iniziare.",
+    "appSettingsTitle": "Impostazioni app",
+    "deleteAppTitle": "Elimina app",
+    "protectedByPin": ", protetta da PIN",
+    "pinLockTitle": "Protetta da PIN",
+    "subspaceCount_one": "{{count}} sottospazio",
+    "subspaceCount_other": "{{count}} sottospazi",
+    "deleteConfirmTitle": "Eliminare \"{{name}}\"?",
+    "deleteConfirmBody_one": "Verranno rimossi anche {{count}} sottospazio e le relative sessioni. L'operazione non è reversibile.",
+    "deleteConfirmBody_other": "Verranno rimossi anche {{count}} sottospazi e le relative sessioni. L'operazione non è reversibile.",
+    "deletingLabel": "Elimino…",
+    "deleteLabel": "Elimina",
+    "appDeletedToast": "\"{{name}}\" eliminata.",
+    "appAddedToast": "\"{{name}}\" aggiunta.",
+    "footer": "Silos v{{version}} · {{date}} · {{commit}}"
+  },
+  "appSettings": {
+    "nav": {
+      "info": "Info",
+      "icon": "Icona",
+      "security": "Sicurezza",
+      "session": "Sessione",
+      "details": "Informazioni"
+    },
+    "info": {
+      "title": "Info",
+      "nameLabel": "Nome app",
+      "urlLabel": "URL",
+      "urlHint": "URL predefinito usato dai sottospazi senza un URL iniziale proprio.",
+      "runInBackgroundLabel": "Esegui in background",
+      "runInBackgroundHint": "Alla chiusura, la finestra resta attiva nella tray invece di chiudersi davvero.",
+      "subspaceLoadingHeading": "Caricamento sottospazi",
+      "eagerLoadLabel": "Carica subito tutti i sottospazi",
+      "eagerLoadHint": "Attivo di default: tutti i sottospazi partono insieme all'app, utile per ricevere notifiche da tutti (es. più account WhatsApp). Disattivalo per caricarli solo al primo click.",
+      "hibernateDelayLabel": "Sospendi sottospazio dopo (minuti)",
+      "hibernateDelayHint": "Passando a un altro sottospazio, quello lasciato viene chiuso (libera memoria) dopo questo tempo di inattività, se non ci torni prima. 0 = subito."
+    },
+    "icon": {
+      "title": "Icona",
+      "hint": "Icona dell'app: usata nel collegamento del menu Start. L'adattamento/bordi/padding sotto si applicano anche alle icone di tutti i sottospazi.",
+      "backgroundColorLabel": "Colore sfondo",
+      "noneButton": "Nessuno",
+      "fitLabel": "Adattamento",
+      "fitCover": "Riempi (ritaglia)",
+      "fitContain": "Originale (nessun ritaglio)",
+      "bordersLabel": "Bordi",
+      "bordersRounded": "Arrotondati",
+      "bordersSquare": "Squadrati",
+      "paddingLabel": "Padding dal bordo"
+    },
+    "security": {
+      "title": "Sicurezza",
+      "pinIntro": "Richiedi un PIN per aprire questa app.",
+      "pinActive": "PIN attivo su questa app.",
+      "removePin": "Rimuovi PIN",
+      "lockOnBackgroundLabel": "Blocca anche quando va in tray (background)",
+      "lockDelayLabel": "Blocca dopo",
+      "lockDelayImmediate": "Subito",
+      "lockDelay1Min": "1 minuto",
+      "lockDelay5Min": "5 minuti",
+      "lockDelay10Min": "10 minuti",
+      "newPinLabel": "Nuovo PIN",
+      "confirmPinLabel": "Conferma PIN",
+      "pinPlaceholder": "4-8 cifre",
+      "enablePinButton": "Attiva PIN",
+      "pinLengthError": "Il PIN deve avere tra 4 e 8 cifre.",
+      "pinMismatchError": "I PIN inseriti non coincidono.",
+      "pinSetError": "Impossibile impostare il PIN.",
+      "tlsHeading": "Certificati TLS",
+      "ignoreCertErrorsLabel": "Ignora avvisi certificato non attendibile",
+      "ignoreCertErrorsHint": "Disattivo di default. Accetta silenziosamente certificati scaduti/self-signed/con nome host errato per tutti i sottospazi di questa app, senza mostrare l'avviso di WebView2. Utile solo per un server locale/di sviluppo con certificato self-signed che conosci — non attivarlo per siti pubblici: rende l'app vulnerabile a man-in-the-middle su quella connessione."
+    },
+    "session": {
+      "title": "Sessione",
+      "hint": "Reimposta tutti i sottospazi di questa app: cookie, login e cache verranno cancellati per ognuno di essi.",
+      "dangerZone": "Zona pericolosa",
+      "confirmReset": "Conferma reset",
+      "resetAllButton": "Reimposta tutte le sessioni"
+    },
+    "details": {
+      "title": "Informazioni",
+      "createdAtLabel": "Data di creazione",
+      "folderPathLabel": "Percorso cartella",
+      "totalSizeLabel": "Dimensione totale",
+      "calculating": "Calcolo...",
+      "perSubspaceSizeLabel": "Dimensione per sottospazio",
+      "refreshButton": "Aggiorna",
+      "unknownDate": "-"
+    }
+  },
+  "globalSettings": {
+    "nav": {
+      "language": "Lingua",
+      "extensions": "Estensioni"
+    },
+    "language": {
+      "title": "Lingua",
+      "languageLabel": "Lingua dell'app"
+    },
+    "extensions": {
+      "title": "Estensioni",
+      "macosIconsApiKeyLabel": "API key macOSicons",
+      "apiKeyPlaceholder": "Incolla qui la tua API key",
+      "apiKeyHintPrefix": "Usata dalla ricerca icone su",
+      "apiKeyHintMiddle": ". Piano free: 50 ricerche/mese. Genera una chiave su",
+      "saved": "Salvato."
+    }
+  },
+  "confirmTyped": {
+    "hintPrefix": "Scrivi",
+    "hintSuffix": "per confermare.",
+    "cancel": "Annulla"
+  },
+  "iconCrop": {
+    "title": "Ritaglia icona",
+    "zoomLabel": "Zoom",
+    "cancel": "Annulla",
+    "applying": "Applico...",
+    "applyButton": "Applica ritaglio"
+  },
+  "iconPicker": {
+    "faviconButton": "Favicon del sito",
+    "chooseImageButton": "Scegli immagine...",
+    "pasteButton": "Incolla dagli appunti",
+    "searchMacosIconsButton": "Cerca icona (macOSicons)",
+    "fromUrlButton": "Da URL immagine...",
+    "cropButton": "Ritaglia/modifica...",
+    "noIconFoundError": "Nessuna icona trovata sul sito.",
+    "noClipboardImageError": "Nessuna immagine trovata negli appunti.",
+    "imageFilterName": "Immagini",
+    "macSearch": {
+      "label": "Cerca su macOSicons.com",
+      "placeholder": "es. safari",
+      "searching": "Cerco...",
+      "searchButton": "Cerca",
+      "hint": "Piano free: 50 ricerche/mese. API key nelle Impostazioni globali.",
+      "noResultsError": "Nessuna icona trovata."
+    },
+    "fromUrl": {
+      "label": "URL diretto a un'immagine",
+      "placeholder": "https://.../icona.png",
+      "useButton": "Usa",
+      "hint": "png, jpg, gif, webp o ico."
+    }
+  },
+  "pinPrompt": {
+    "message": "Inserisci il PIN per riaprire l'app.",
+    "wrongPinError": "PIN errato.",
+    "placeholder": "PIN",
+    "unlockButton": "Sblocca",
+    "cancel": "Annulla"
+  },
+  "quitConfirm": {
+    "message": "Chiudere definitivamente l'app? Uscirà anche dalla tray.",
+    "closeButton": "Chiudi",
+    "cancel": "Annulla"
+  },
+  "settingsView": {
+    "nav": {
+      "info": "Info",
+      "session": "Sessione",
+      "icon": "Icona"
+    },
+    "info": {
+      "title": "Info",
+      "titleLabel": "Titolo",
+      "startUrlLabel": "URL iniziale",
+      "startUrlHint": "Vuoto = usa l'URL dell'app ({{url}})"
+    },
+    "session": {
+      "title": "Sessione",
+      "sharingLabel": "Condivisione",
+      "ownSession": "Sessione propria",
+      "shareWith": "Condividi con {{name}}",
+      "sharingHint": "I sottospazi con la stessa sessione condividono cookie e login.",
+      "dangerZone": "Zona pericolosa",
+      "confirmClear": "Conferma pulizia",
+      "clearDataButton": "Pulisci dati sessione",
+      "confirmDelete": "Conferma eliminazione",
+      "deleteSubspaceButton": "Elimina sottospazio"
+    },
+    "icon": {
+      "title": "Icona",
+      "backgroundColorLabel": "Colore sfondo",
+      "noneButton": "Nessuno",
+      "paddingLabel": "Padding dal bordo",
+      "paddingHint": "Vale per le icone di tutti i sottospazi di quest'app.",
+      "shapeHint": "Adattamento e forma dell'icona si impostano per tutta l'app, nelle Impostazioni app."
+    }
+  },
+  "siteSearch": {
+    "defaultSearchPlaceholder": "Cerca sito (es. google)",
+    "defaultConfirmLabel": "Crea",
+    "searching": "Cerco...",
+    "searchButton": "Cerca",
+    "closeTitle": "Chiudi",
+    "noIconFoundError": "Nessuna icona trovata automaticamente: prova con un'immagine o cercane una.",
+    "unreachableSiteError": "Sito non raggiungibile: verifica URL e titolo, o modifica l'icona a mano.",
+    "backgroundColorLabel": "Colore sfondo",
+    "noneButton": "Nessuno",
+    "fitLabel": "Adattamento",
+    "fitCover": "Riempi (ritaglia)",
+    "fitContain": "Originale (nessun ritaglio)",
+    "bordersLabel": "Bordi",
+    "bordersRounded": "Arrotondati",
+    "bordersSquare": "Squadrati",
+    "paddingLabel": "Padding dal bordo",
+    "titleLabel": "Titolo",
+    "urlLabel": "URL",
+    "cancel": "Annulla"
+  },
+  "toolbar": {
+    "newTabTitle": "Nuova scheda",
+    "newTabFallbackTitle": "Nuova scheda",
+    "backTitle": "Indietro",
+    "forwardTitle": "Avanti",
+    "reloadTitle": "Ricarica",
+    "homeTitle": "Home",
+    "urlPlaceholder": "Indirizzo"
+  },
+  "appSidebar": {
+    "addSubspaceTitle": "Aggiungi sottospazio",
+    "addSubspaceLabel": "Aggiungi sottospazio",
+    "collapseSidebarTitle": "Riduci sidebar",
+    "expandSidebarTitle": "Espandi sidebar",
+    "collapseSidebarLabel": "Riduci sidebar",
+    "expandSidebarLabel": "Espandi sidebar",
+    "openDashboardTitle": "Apri dashboard",
+    "openDashboardLabel": "Apri dashboard",
+    "appSettingsTitle": "Impostazioni app",
+    "appSettingsLabel": "Impostazioni app",
+    "quitTitle": "Chiudi definitivamente (esce anche dalla tray)",
+    "quitLabel": "Chiudi definitivamente"
+  },
+  "addSubspacePopup": {
+    "searchPlaceholder": "Cerca sito per il sottospazio",
+    "createLabel": "Crea",
+    "sessionLabel": "Sessione",
+    "isolatedSession": "Isolata (nuova)",
+    "sharedSessionWith": "Condivisa con: {{label}}"
+  }
+}

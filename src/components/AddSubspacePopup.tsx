@@ -1,4 +1,5 @@
 import { KeyboardEvent, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { api } from "../api";
 import { SiteSearch } from "./SiteSearch";
@@ -12,6 +13,7 @@ interface Props {
 const ISOLATED = "__isolated__";
 
 export function AddSubspacePopup({ appId }: Props) {
+  const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
   const [groups, setGroups] = useState<SessionGroupInfo[]>([]);
   const [sessionChoice, setSessionChoice] = useState(ISOLATED);
@@ -39,20 +41,20 @@ export function AddSubspacePopup({ appId }: Props) {
     <div className="add-popup" onKeyDown={handleKeyDown}>
       <SiteSearch
         initial={{ name: app.name, url: app.url, icon: app.icon }}
-        searchPlaceholder="Cerca sito per il sottospazio"
-        confirmLabel="Crea"
+        searchPlaceholder={t("addSubspacePopup.searchPlaceholder")}
+        confirmLabel={t("addSubspacePopup.createLabel")}
         showBackground
         defaultBackground={app.icon_background_color}
         onConfirm={handleConfirm}
         onCancel={() => getCurrentWindow().close()}
         extraFields={
           <label className="settings-field">
-            <span>Sessione</span>
+            <span>{t("addSubspacePopup.sessionLabel")}</span>
             <select value={sessionChoice} onChange={(e) => setSessionChoice(e.target.value)}>
-              <option value={ISOLATED}>Isolata (nuova)</option>
+              <option value={ISOLATED}>{t("addSubspacePopup.isolatedSession")}</option>
               {groups.map((g) => (
                 <option key={g.group} value={g.group}>
-                  Condivisa con: {g.label}
+                  {t("addSubspacePopup.sharedSessionWith", { label: g.label })}
                 </option>
               ))}
             </select>

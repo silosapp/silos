@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { WebApp } from "../types";
 import { api } from "../api";
 import { SiteSearch } from "./SiteSearch";
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSettings }: Props) {
+  const { t } = useTranslation();
   const [iconCache, setIconCache] = useState<Record<string, string>>({});
   const [deleteTarget, setDeleteTarget] = useState<WebApp | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -63,7 +65,7 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
     setDeleting(true);
     try {
       await onDelete(deleteTarget.id);
-      showToast(`"${deleteTarget.name}" eliminata.`);
+      showToast(t("dashboard.appDeletedToast", { name: deleteTarget.name }));
       setDeleteTarget(null);
     } finally {
       setDeleting(false);
@@ -87,26 +89,26 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
           <img src={logo} alt="" className="dashboard-logo" />
           <h1>Silos</h1>
         </div>
-        <button className="ghost btn-icon-label" onClick={onOpenGlobalSettings} title="Impostazioni globali">
-          <GearIcon size={14} /> Impostazioni
+        <button className="ghost btn-icon-label" onClick={onOpenGlobalSettings} title={t("dashboard.settingsTitle")}>
+          <GearIcon size={14} /> {t("dashboard.settings")}
         </button>
       </div>
 
       <div className="search-card">
         <SiteSearch
-          searchPlaceholder="Cerca sito da aggiungere (es. google)"
-          confirmLabel="+ Nuova app"
+          searchPlaceholder={t("dashboard.searchPlaceholder")}
+          confirmLabel={t("dashboard.createLabel")}
           showShape
           showBackground
           onConfirm={async ({ name, url, icon, fit, rounded, background, paddingPercent }) => {
             await onCreate(name, url, icon, fit, rounded, background, paddingPercent);
-            showToast(`"${name}" aggiunta.`);
+            showToast(t("dashboard.appAddedToast", { name }));
           }}
         />
       </div>
 
       {apps.length === 0 ? (
-        <div className="empty-state">Nessuna app ancora. Cercane una sopra per iniziare.</div>
+        <div className="empty-state">{t("dashboard.emptyState")}</div>
       ) : (
         <div className="app-grid">
           {apps.map((app) => (
@@ -115,9 +117,7 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
               className={`app-card${openingId === app.id ? " app-card-opening" : ""}`}
               role="button"
               tabIndex={0}
-              aria-label={`${app.name}${app.has_pin ? ", protetta da PIN" : ""}, ${app.subspaces.length} ${
-                app.subspaces.length === 1 ? "sottospazio" : "sottospazi"
-              }`}
+              aria-label={`${app.name}${app.has_pin ? t("dashboard.protectedByPin") : ""}, ${t("dashboard.subspaceCount", { count: app.subspaces.length })}`}
               aria-busy={openingId === app.id}
               onClick={() => handleCardClick(app)}
               onKeyDown={(e) => handleCardKeyDown(e, app)}
@@ -129,7 +129,7 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
                     e.stopPropagation();
                     api.openAppSettings(app.id);
                   }}
-                  title="Impostazioni app"
+                  title={t("dashboard.appSettingsTitle")}
                 >
                   <GearIcon size={14} />
                 </button>
@@ -139,7 +139,7 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
                     e.stopPropagation();
                     setDeleteTarget(app);
                   }}
-                  title="Elimina app"
+                  title={t("dashboard.deleteAppTitle")}
                 >
                   <TrashIcon size={14} />
                 </button>
@@ -167,16 +167,13 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
               <div className="app-card-name">
                 {app.name}
                 {app.has_pin && (
-                  <span className="app-card-pin-lock" title="Protetta da PIN">
+                  <span className="app-card-pin-lock" title={t("dashboard.pinLockTitle")}>
                     <LockIcon />
                   </span>
                 )}
               </div>
               <div className="app-card-url">{app.url}</div>
-              <div className="app-card-meta">
-                {app.subspaces.length}{" "}
-                {app.subspaces.length === 1 ? "sottospazio" : "sottospazi"}
-              </div>
+              <div className="app-card-meta">{t("dashboard.subspaceCount", { count: app.subspaces.length })}</div>
             </div>
           ))}
         </div>
@@ -185,14 +182,10 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
       {deleteTarget && (
         <div className="modal-overlay" onClick={() => !deleting && setDeleteTarget(null)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h2>Eliminare "{deleteTarget.name}"?</h2>
-            <p>
-              Verranno rimossi anche {deleteTarget.subspaces.length}{" "}
-              {deleteTarget.subspaces.length === 1 ? "sottospazio" : "sottospazi"} e le relative sessioni.
-              L'operazione non è reversibile.
-            </p>
+            <h2>{t("dashboard.deleteConfirmTitle", { name: deleteTarget.name })}</h2>
+            <p>{t("dashboard.deleteConfirmBody", { count: deleteTarget.subspaces.length })}</p>
             <ConfirmTyped
-              label={deleting ? "Elimino…" : "Elimina"}
+              label={deleting ? t("dashboard.deletingLabel") : t("dashboard.deleteLabel")}
               onConfirm={handleConfirmDelete}
               onCancel={() => setDeleteTarget(null)}
               busy={deleting}
@@ -208,7 +201,11 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
       )}
 
       <div className="dashboard-footer">
-        Silos v{__APP_VERSION__} · {new Date(__BUILD_DATE__).toLocaleDateString()} · {__COMMIT_HASH__}
+        {t("dashboard.footer", {
+          version: __APP_VERSION__,
+          date: new Date(__BUILD_DATE__).toLocaleDateString(),
+          commit: __COMMIT_HASH__,
+        })}
       </div>
     </div>
   );

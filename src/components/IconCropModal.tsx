@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import Cropper, { Area, Point } from "react-easy-crop";
+import { useTranslation } from "react-i18next";
 import { api } from "../api";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 /// way — to the `crop_icon` backend command, which produces a fresh cached
 /// file, same contract as every other icon source.
 export function IconCropModal({ sourcePath, sourceUrl, onCancel, onCropped }: Props) {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [area, setArea] = useState<Area | null>(null);
@@ -48,7 +50,7 @@ export function IconCropModal({ sourcePath, sourceUrl, onCancel, onCropped }: Pr
   return (
     <div className="modal-overlay">
       <div className="modal-box icon-crop-box">
-        <h2>Ritaglia icona</h2>
+        <h2>{t("iconCrop.title")}</h2>
         <div className="icon-crop-stage">
           <Cropper
             image={sourceUrl}
@@ -63,7 +65,7 @@ export function IconCropModal({ sourcePath, sourceUrl, onCancel, onCropped }: Pr
           />
         </div>
         <label className="settings-field">
-          <span>Zoom</span>
+          <span>{t("iconCrop.zoomLabel")}</span>
           <input
             type="range"
             min={1}
@@ -76,10 +78,10 @@ export function IconCropModal({ sourcePath, sourceUrl, onCancel, onCropped }: Pr
         {error && <div className="site-confirm-error">{error}</div>}
         <div className="btn-row">
           <button type="button" className="ghost" disabled={busy} onClick={onCancel}>
-            Annulla
+            {t("iconCrop.cancel")}
           </button>
           <button type="button" disabled={busy || !area} onClick={apply}>
-            {busy ? "Applico..." : "Applica ritaglio"}
+            {busy ? t("iconCrop.applying") : t("iconCrop.applyButton")}
           </button>
         </div>
       </div>

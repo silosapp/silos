@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Subspace, WebApp } from "../types";
 import { api } from "../api";
@@ -14,6 +15,7 @@ interface Props {
 type Section = "info" | "session" | "icon";
 
 export function SettingsView({ appId, subspaceId }: Props) {
+  const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
   const [section, setSection] = useState<Section>("info");
   const [iconUrl, setIconUrl] = useState<string | undefined>();
@@ -47,13 +49,13 @@ export function SettingsView({ appId, subspaceId }: Props) {
     <div className="settings-window">
       <nav className="settings-nav">
         <button className={section === "info" ? "active" : ""} onClick={() => setSection("info")}>
-          Info
+          {t("settingsView.nav.info")}
         </button>
         <button className={section === "session" ? "active" : ""} onClick={() => setSection("session")}>
-          Sessione
+          {t("settingsView.nav.session")}
         </button>
         <button className={section === "icon" ? "active" : ""} onClick={() => setSection("icon")}>
-          Icona
+          {t("settingsView.nav.icon")}
         </button>
       </nav>
 
@@ -87,6 +89,7 @@ function InfoSection({
   subspace: Subspace;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(subspace.name);
   const [startUrl, setStartUrl] = useState(subspace.start_url ?? "");
 
@@ -110,22 +113,22 @@ function InfoSection({
 
   return (
     <div className="settings-section">
-      <h2>Info</h2>
+      <h2>{t("settingsView.info.title")}</h2>
 
       <label className="settings-field">
-        <span>Titolo</span>
+        <span>{t("settingsView.info.titleLabel")}</span>
         <input value={name} onChange={(e) => setName(e.target.value)} onBlur={saveName} />
       </label>
 
       <label className="settings-field">
-        <span>URL iniziale</span>
+        <span>{t("settingsView.info.startUrlLabel")}</span>
         <input
           value={startUrl}
           onChange={(e) => setStartUrl(e.target.value)}
           onBlur={saveStartUrl}
           placeholder={app.url}
         />
-        <small>Vuoto = usa l'URL dell'app ({app.url})</small>
+        <small>{t("settingsView.info.startUrlHint", { url: app.url })}</small>
       </label>
     </div>
   );
@@ -140,6 +143,7 @@ function SessionSection({
   subspace: Subspace;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation();
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
 
@@ -160,46 +164,46 @@ function SessionSection({
 
   return (
     <div className="settings-section">
-      <h2>Sessione</h2>
+      <h2>{t("settingsView.session.title")}</h2>
 
       <label className="settings-field">
-        <span>Condivisione</span>
+        <span>{t("settingsView.session.sharingLabel")}</span>
         <select
           value={subspace.session_group === subspace.id ? "" : subspace.session_group}
           onChange={(e) => share(e.target.value || subspace.id)}
         >
-          <option value="">Sessione propria</option>
+          <option value="">{t("settingsView.session.ownSession")}</option>
           {app.subspaces
             .filter((o) => o.id !== subspace.id)
             .map((o) => (
               <option key={o.id} value={o.session_group}>
-                Condividi con {o.name}
+                {t("settingsView.session.shareWith", { name: o.name })}
               </option>
             ))}
         </select>
-        <small>I sottospazi con la stessa sessione condividono cookie e login.</small>
+        <small>{t("settingsView.session.sharingHint")}</small>
       </label>
 
       <div className="settings-danger-zone">
-        <h3>Zona pericolosa</h3>
+        <h3>{t("settingsView.session.dangerZone")}</h3>
 
         {confirmingClear ? (
-          <ConfirmTyped label="Conferma pulizia" onConfirm={clearData} onCancel={() => setConfirmingClear(false)} />
+          <ConfirmTyped label={t("settingsView.session.confirmClear")} onConfirm={clearData} onCancel={() => setConfirmingClear(false)} />
         ) : (
           <button className="ghost" onClick={() => setConfirmingClear(true)}>
-            Pulisci dati sessione
+            {t("settingsView.session.clearDataButton")}
           </button>
         )}
 
         {confirmingRemove ? (
           <ConfirmTyped
-            label="Conferma eliminazione"
+            label={t("settingsView.session.confirmDelete")}
             onConfirm={removeSubspace}
             onCancel={() => setConfirmingRemove(false)}
           />
         ) : (
           <button className="danger-ghost" onClick={() => setConfirmingRemove(true)}>
-            Elimina sottospazio
+            {t("settingsView.session.deleteSubspaceButton")}
           </button>
         )}
       </div>
@@ -220,6 +224,7 @@ function IconSection({
   iconPath?: string;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation();
   const [padding, setPadding] = useState(app.icon_style.padding_percent);
 
   useEffect(() => {
@@ -244,7 +249,7 @@ function IconSection({
 
   return (
     <div className="settings-section">
-      <h2>Icona</h2>
+      <h2>{t("settingsView.icon.title")}</h2>
 
       <IconPicker
         iconUrl={iconUrl}
@@ -260,7 +265,7 @@ function IconSection({
       />
 
       <label className="settings-field settings-field-row">
-        <span>Colore sfondo</span>
+        <span>{t("settingsView.icon.backgroundColorLabel")}</span>
         <div className="color-row">
           <input
             type="color"
@@ -268,14 +273,14 @@ function IconSection({
             onChange={(e) => setBackground(e.target.value)}
           />
           <button className="ghost" onClick={() => setBackground(null)}>
-            Nessuno
+            {t("settingsView.icon.noneButton")}
           </button>
         </div>
       </label>
 
       <label className="settings-field" style={{ marginTop: "1rem" }}>
-        <span>Padding dal bordo</span>
-        <small>Vale per le icone di tutti i sottospazi di quest'app.</small>
+        <span>{t("settingsView.icon.paddingLabel")}</span>
+        <small>{t("settingsView.icon.paddingHint")}</small>
         <span className="icon-padding-row">
           <input
             type="range"
@@ -295,9 +300,7 @@ function IconSection({
         </span>
       </label>
 
-      <small>
-        Adattamento e forma dell'icona si impostano per tutta l'app, nelle Impostazioni app.
-      </small>
+      <small>{t("settingsView.icon.shapeHint")}</small>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function PinPrompt({
   title,
@@ -11,6 +12,7 @@ export function PinPrompt({
   onSubmit: (pin: string) => Promise<void>;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -22,7 +24,7 @@ export function PinPrompt({
       await onSubmit(pin);
       setPin("");
     } catch {
-      setError("PIN errato.");
+      setError(t("pinPrompt.wrongPinError"));
       setPin("");
     } finally {
       setChecking(false);
@@ -40,15 +42,15 @@ export function PinPrompt({
           value={pin}
           onChange={(e) => setPin(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !checking && submit()}
-          placeholder="PIN"
+          placeholder={t("pinPrompt.placeholder")}
         />
         {error && <div className="modal-error">{error}</div>}
         <div className="btn-row">
           <button onClick={submit} disabled={checking || !pin}>
-            Sblocca
+            {t("pinPrompt.unlockButton")}
           </button>
           <button className="ghost" onClick={onCancel}>
-            Annulla
+            {t("pinPrompt.cancel")}
           </button>
         </div>
       </div>
