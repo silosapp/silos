@@ -27,14 +27,8 @@ jobs:
       - name: Build (frontend + Tauri release binary)
         run: npm run tauri build
 
-      - name: Rename exe with version
-        shell: bash
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          cp src-tauri/target/release/silos.exe "silos-${version}-windows-x64.exe"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: silos-*-windows-x64.exe
+          files: src-tauri/target/release/silos.exe
           generate_release_notes: true
