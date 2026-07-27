@@ -206,6 +206,10 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
           {toast}
         </div>
       )}
+
+      <div className="dashboard-footer">
+        Silos v{__APP_VERSION__} · {new Date(__BUILD_DATE__).toLocaleDateString()} · {__COMMIT_HASH__}
+      </div>
     </div>
   );
 }
