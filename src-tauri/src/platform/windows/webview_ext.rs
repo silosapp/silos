@@ -110,6 +110,38 @@ pub fn setup_password_autosave(webview: &tauri::webview::Webview) {
     });
 }
 
+/// Silently accepts TLS certificate errors (expired/self-signed/hostname
+/// mismatch) instead of showing WebView2's interstitial warning page. Scoped
+/// to this one webview's `ICoreWebView2` — since every subspace already gets
+/// its own WebView2 environment (keyed off `.data_directory()`), this never
+/// leaks into other apps/subspaces that didn't opt in. Meant for apps
+/// pointed at a known local/dev server with a self-signed cert; callers must
+/// gate this behind an explicit per-app opt-in, never call it unconditionally.
+pub fn allow_self_signed_certificates(webview: &tauri::webview::Webview) {
+    use webview2_com::Microsoft::Web::WebView2::Win32::{
+        ICoreWebView2_14, COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION_ALWAYS_ALLOW,
+    };
+    use webview2_com::ServerCertificateErrorDetectedEventHandler;
+    use windows::core::Interface;
+
+    let _ = webview.with_webview(move |pw| {
+        let controller = pw.controller();
+        unsafe {
+            let Ok(core) = controller.CoreWebView2() else { return };
+            let Ok(core14) = core.cast::<ICoreWebView2_14>() else { return };
+
+            let handler = ServerCertificateErrorDetectedEventHandler::create(Box::new(|_sender, args| {
+                if let Some(args) = args {
+                    let _ = args.SetAction(COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION_ALWAYS_ALLOW);
+                }
+                Ok(())
+            }));
+            let mut token: i64 = 0;
+            let _ = core14.add_ServerCertificateErrorDetected(&handler, &mut token);
+        }
+    });
+}
+
 struct SendableNotification(webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2Notification);
 unsafe impl Send for SendableNotification {}
 impl SendableNotification {

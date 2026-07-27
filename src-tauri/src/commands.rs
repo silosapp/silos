@@ -390,6 +390,7 @@ pub fn create_app(
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_secs() as i64)
             .unwrap_or(0),
+        ignore_certificate_errors: false,
         subspaces: vec![default_subspace],
     };
     config.apps.push(app.clone());
@@ -1400,6 +1401,19 @@ pub fn set_app_eager_load_subspaces(app_handle: AppHandle, store: State<Store>, 
     notify_sidebar(&app_handle, &app_id);
 }
 
+/// Takes effect for tabs opened after this is set — doesn't retroactively
+/// patch webviews already running, since the bypass is wired once at webview
+/// creation (see `open_tab_internal`).
+#[tauri::command]
+pub fn set_app_ignore_certificate_errors(store: State<Store>, app_id: String, enabled: bool) {
+    let mut config = store.config.lock().unwrap();
+    if let Some(app) = config.apps.iter_mut().find(|a| a.id == app_id) {
+        app.ignore_certificate_errors = enabled;
+    }
+    drop(config);
+    store.save();
+}
+
 #[tauri::command]
 pub fn set_app_hibernate_delay_secs(app_handle: AppHandle, store: State<Store>, app_id: String, delay_secs: u64) {
     let mut config = store.config.lock().unwrap();
@@ -1779,7 +1793,7 @@ fn open_tab_internal(
         .get_window(&app_window_label(app_id))
         .ok_or("app window not open")?;
 
-    let (url, data_slug, session_group) = {
+    let (url, data_slug, session_group, ignore_certificate_errors) = {
         let config = store.config.lock().unwrap();
         let app = config.apps.iter().find(|a| a.id == app_id).ok_or("app not found")?;
         let subspace = app
@@ -1792,6 +1806,7 @@ fn open_tab_internal(
             url_override.unwrap_or(default_url),
             app.data_slug.clone(),
             subspace.session_group.clone(),
+            app.ignore_certificate_errors,
         )
     };
 
@@ -1810,7 +1825,22 @@ fn open_tab_internal(
 
     let tab_id = uuid::Uuid::new_v4().to_string();
     let label = tab_label(app_id, subspace_id, &tab_id);
-    let webview_url = WebviewUrl::External(url.parse().map_err(|e: url::ParseError| e.to_string())?);
+    let target_url: url::Url = url.parse().map_err(|e: url::ParseError| e.to_string())?;
+    // When the cert bypass is on, the webview is built pointed at a harmless
+    // placeholder instead of `target_url` directly and only navigated to it
+    // for real afterwards (below), once `allow_self_signed_certificates` has
+    // registered its handler. Building straight at `target_url` would race
+    // WebView2's own initial navigation against that registration — on a fast
+    // (e.g. LAN/localhost) connection the cert error can be evaluated, and
+    // the interstitial shown, before our handler is attached, since both the
+    // builder's implicit first navigation and our post-creation
+    // `with_webview` setup are dispatched onto the same webview thread with
+    // no ordering guarantee between them.
+    let webview_url = if ignore_certificate_errors {
+        WebviewUrl::External("about:blank".parse().unwrap())
+    } else {
+        WebviewUrl::External(target_url.clone())
+    };
 
     let handle_nav = app_handle.clone();
     let app_id_nav = app_id.to_string();
@@ -1919,6 +1949,10 @@ fn open_tab_internal(
 
     crate::platform::webview::setup_web_notifications(app_handle, &data_slug, app_id, &tab_webview);
     crate::platform::webview::setup_password_autosave(&tab_webview);
+    if ignore_certificate_errors {
+        crate::platform::webview::allow_self_signed_certificates(&tab_webview);
+        let _ = tab_webview.navigate(target_url);
+    }
 
     {
         let mut map = registry.0.lock().unwrap();

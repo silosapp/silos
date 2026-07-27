@@ -176,6 +176,7 @@ pub fn run() {
             commands::set_subspace_icon_background,
             commands::set_app_run_in_background,
             commands::set_app_eager_load_subspaces,
+            commands::set_app_ignore_certificate_errors,
             commands::set_app_hibernate_delay_secs,
             commands::set_app_pin,
             commands::set_app_pin_lock,

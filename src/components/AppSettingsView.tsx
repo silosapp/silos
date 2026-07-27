@@ -338,6 +338,11 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
     onChanged();
   }
 
+  async function toggleIgnoreCertificateErrors(enabled: boolean) {
+    await api.setAppIgnoreCertificateErrors(app.id, enabled);
+    onChanged();
+  }
+
   return (
     <div className="settings-section">
       <h2>Sicurezza</h2>
@@ -404,6 +409,25 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
           </button>
         </>
       )}
+
+      <h3 className="settings-group-heading">Certificati TLS</h3>
+
+      <div className="settings-field">
+        <label className="settings-field-row">
+          <span>Ignora avvisi certificato non attendibile</span>
+          <input
+            type="checkbox"
+            checked={app.ignore_certificate_errors}
+            onChange={(e) => toggleIgnoreCertificateErrors(e.target.checked)}
+          />
+        </label>
+        <small>
+          Disattivo di default. Accetta silenziosamente certificati scaduti/self-signed/con nome host
+          errato per tutti i sottospazi di questa app, senza mostrare l'avviso di WebView2. Utile solo
+          per un server locale/di sviluppo con certificato self-signed che conosci — non attivarlo per
+          siti pubblici: rende l'app vulnerabile a man-in-the-middle su quella connessione.
+        </small>
+      </div>
     </div>
   );
 }

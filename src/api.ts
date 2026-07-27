@@ -154,6 +154,9 @@ export const api = {
   setAppHibernateDelaySecs: (appId: string, delaySecs: number) =>
     invoke<void>("set_app_hibernate_delay_secs", { appId, delaySecs }),
 
+  setAppIgnoreCertificateErrors: (appId: string, enabled: boolean) =>
+    invoke<void>("set_app_ignore_certificate_errors", { appId, enabled }),
+
   fetchAppFavicon: (appId: string) => invoke<string>("fetch_app_favicon", { appId }),
 
   setAppIcon: (appId: string, iconPath: string) => invoke<void>("set_app_icon", { appId, iconPath }),

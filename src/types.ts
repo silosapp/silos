@@ -59,6 +59,7 @@ export interface WebApp {
   pin_lock_on_background: boolean;
   pin_lock_delay_secs: number;
   created_at: number;
+  ignore_certificate_errors: boolean;
   subspaces: Subspace[];
 }
 

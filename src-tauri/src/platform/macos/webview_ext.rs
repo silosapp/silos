@@ -14,6 +14,12 @@ pub fn setup_web_notifications(_app_handle: &tauri::AppHandle, _data_slug: &str,
 
 pub fn setup_password_autosave(_webview: &tauri::webview::Webview) {}
 
+// TODO(macos): WKWebView's equivalent is implementing `WKNavigationDelegate`'s
+// `didReceiveAuthenticationChallenge` and calling back with
+// `.useCredential`/`URLCredential(trust:)` for a `serverTrust` challenge —
+// not exposed by wry/tauri today, would need direct `objc2`/`objc2-web-kit`.
+pub fn allow_self_signed_certificates(_webview: &tauri::webview::Webview) {}
+
 /// Deterministic per-subspace `WKWebsiteDataStore` identifier, passed to
 /// `WebviewBuilder::data_store_identifier()` — the only session-isolation
 /// mechanism WKWebView exposes. `.data_directory(path)` (what Windows and

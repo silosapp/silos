@@ -117,6 +117,14 @@ pub struct WebApp {
     /// (see `Store::assign_missing_slugs`), so it's a lower bound for those.
     #[serde(default)]
     pub created_at: i64,
+    /// When true, TLS certificate errors (expired/self-signed/hostname
+    /// mismatch) in every subspace of this app are silently accepted instead
+    /// of showing WebView2's interstitial warning. Off by default — meant for
+    /// apps pointed at a known local/dev server with a self-signed cert, not
+    /// a general-purpose bypass. Applies per-app, not globally: other apps
+    /// still get normal certificate validation.
+    #[serde(default)]
+    pub ignore_certificate_errors: bool,
     pub subspaces: Vec<Subspace>,
 }
 
@@ -139,6 +147,7 @@ pub struct WebAppView {
     pub pin_lock_on_background: bool,
     pub pin_lock_delay_secs: u64,
     pub created_at: i64,
+    pub ignore_certificate_errors: bool,
     pub subspaces: Vec<Subspace>,
 }
 
@@ -159,6 +168,7 @@ impl From<&WebApp> for WebAppView {
             pin_lock_on_background: app.pin_lock_on_background,
             pin_lock_delay_secs: app.pin_lock_delay_secs,
             created_at: app.created_at,
+            ignore_certificate_errors: app.ignore_certificate_errors,
             subspaces: app.subspaces.clone(),
         }
     }

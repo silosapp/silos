@@ -22,3 +22,9 @@
 pub fn setup_web_notifications(_app_handle: &tauri::AppHandle, _data_slug: &str, _app_id: &str, _webview: &tauri::webview::Webview) {}
 
 pub fn setup_password_autosave(_webview: &tauri::webview::Webview) {}
+
+// TODO(linux): WebKitGTK's equivalent is the `WebKitWebView`
+// "load-failed-with-tls-errors" signal (or pre-allowing via
+// `webkit_web_context_allow_tls_certificate_for_host`) — reachable through
+// `with_webview`'s raw `webkit2gtk` handle, not wired up yet.
+pub fn allow_self_signed_certificates(_webview: &tauri::webview::Webview) {}
