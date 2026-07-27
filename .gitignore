@@ -1,0 +1,45 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Portable runtime data (created next to the exe when the app actually runs:
+# saved webapps, icons, session cookies, PIN hashes) — never belongs in git,
+# defensively ignored at the repo root too even though it only ever
+# materializes under src-tauri/target/ during dev.
+/data/
+src-tauri/data/
+
+# Secrets / env files
+.env
+.env.*
+!.env.example
+
+# Local tool caches (impeccable design hook cache/critique history — has
+# absolute local paths, not project content)
+.impeccable/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+.claude/settings.local.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Windows OS junk
+Thumbs.db
+desktop.ini
