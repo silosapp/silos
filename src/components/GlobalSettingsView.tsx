@@ -1,13 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { api } from "../api";
 
 type Section = "language" | "extensions";
+type ToastFn = (message: string, type?: "success" | "error") => void;
 
 export function GlobalSettingsView() {
   const { t } = useTranslation();
   const [section, setSection] = useState<Section>("language");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(message: string, type: "success" | "error" = "success") {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast(null), 2500);
+  }
 
   return (
     <div className="settings-window">
@@ -21,15 +30,34 @@ export function GlobalSettingsView() {
       </nav>
 
       <div className="settings-panel">
-        {section === "language" && <LanguageSection />}
-        {section === "extensions" && <ExtensionsSection />}
+        {section === "language" && <LanguageSection onToast={showToast} />}
+        {section === "extensions" && <ExtensionsSection onToast={showToast} />}
       </div>
+
+      {toast && (
+        <div className={`toast${toast.type === "error" ? " toast-error" : ""}`} role="status">
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
 
-function LanguageSection() {
+function LanguageSection({ onToast }: { onToast: ToastFn }) {
   const { t, i18n } = useTranslation();
+  const current = i18n.language.split("-")[0];
+  const [draft, setDraft] = useState(current);
+
+  const isDirty = draft !== current;
+
+  function save() {
+    try {
+      i18n.changeLanguage(draft);
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
+    }
+  }
 
   return (
     <div className="settings-section">
@@ -37,28 +65,50 @@ function LanguageSection() {
 
       <label className="settings-field settings-field-row">
         <span>{t("globalSettings.language.languageLabel")}</span>
-        <select value={i18n.language.split("-")[0]} onChange={(e) => i18n.changeLanguage(e.target.value)}>
+        <select value={draft} onChange={(e) => setDraft(e.target.value)}>
           <option value="it">Italiano</option>
           <option value="en">English</option>
         </select>
       </label>
+
+      {isDirty && (
+        <div className="settings-actions">
+          <button onClick={save}>{t("common.save")}</button>
+          <button className="ghost" onClick={() => setDraft(current)}>
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function ExtensionsSection() {
+function ExtensionsSection({ onToast }: { onToast: ToastFn }) {
   const { t } = useTranslation();
+  const [savedApiKey, setSavedApiKey] = useState("");
   const [apiKey, setApiKey] = useState("");
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    api.getMacosIconsApiKey().then((key) => setApiKey(key ?? ""));
+    api.getMacosIconsApiKey().then((key) => {
+      setSavedApiKey(key ?? "");
+      setApiKey(key ?? "");
+    });
   }, []);
 
+  const isDirty = apiKey !== savedApiKey;
+
   async function save() {
-    await api.setMacosIconsApiKey(apiKey.trim() || null);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
+    try {
+      await api.setMacosIconsApiKey(apiKey.trim() || null);
+      setSavedApiKey(apiKey);
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
+    }
+  }
+
+  function cancel() {
+    setApiKey(savedApiKey);
   }
 
   return (
@@ -71,7 +121,6 @@ function ExtensionsSection() {
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          onBlur={save}
           placeholder={t("globalSettings.extensions.apiKeyPlaceholder")}
         />
         <small>
@@ -93,7 +142,14 @@ function ExtensionsSection() {
         </small>
       </label>
 
-      {saved && <div className="settings-saved-hint">{t("globalSettings.extensions.saved")}</div>}
+      {isDirty && (
+        <div className="settings-actions">
+          <button onClick={save}>{t("common.save")}</button>
+          <button className="ghost" onClick={cancel}>
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

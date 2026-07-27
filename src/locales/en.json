@@ -1,4 +1,11 @@
 {
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "unsavedChanges": "Unsaved changes.",
+    "saved": "Changes saved.",
+    "saveError": "Couldn't save changes."
+  },
   "dashboard": {
     "settings": "Settings",
     "settingsTitle": "Global settings",
@@ -108,8 +115,7 @@
       "macosIconsApiKeyLabel": "macOSicons API key",
       "apiKeyPlaceholder": "Paste your API key here",
       "apiKeyHintPrefix": "Used by the icon search on",
-      "apiKeyHintMiddle": ". Free plan: 50 searches/month. Generate a key at",
-      "saved": "Saved."
+      "apiKeyHintMiddle": ". Free plan: 50 searches/month. Generate a key at"
     }
   },
   "confirmTyped": {

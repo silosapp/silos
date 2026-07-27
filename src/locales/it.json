@@ -1,4 +1,11 @@
 {
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "unsavedChanges": "Modifiche non salvate.",
+    "saved": "Modifiche salvate.",
+    "saveError": "Impossibile salvare le modifiche."
+  },
   "dashboard": {
     "settings": "Impostazioni",
     "settingsTitle": "Impostazioni globali",
@@ -108,8 +115,7 @@
       "macosIconsApiKeyLabel": "API key macOSicons",
       "apiKeyPlaceholder": "Incolla qui la tua API key",
       "apiKeyHintPrefix": "Usata dalla ricerca icone su",
-      "apiKeyHintMiddle": ". Piano free: 50 ricerche/mese. Genera una chiave su",
-      "saved": "Salvato."
+      "apiKeyHintMiddle": ". Piano free: 50 ricerche/mese. Genera una chiave su"
     }
   },
   "confirmTyped": {

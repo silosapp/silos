@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AppInfo, WebApp } from "../types";
 import { api } from "../api";
@@ -12,11 +12,21 @@ interface Props {
 
 type Section = "info" | "icon" | "security" | "session" | "details";
 
+type ToastFn = (message: string, type?: "success" | "error") => void;
+
 export function AppSettingsView({ appId }: Props) {
   const { t } = useTranslation();
   const [app, setApp] = useState<WebApp | null>(null);
   const [section, setSection] = useState<Section>("info");
   const [iconUrl, setIconUrl] = useState<string | undefined>();
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(message: string, type: "success" | "error" = "success") {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast(null), 2500);
+  }
 
   async function refresh() {
     const apps = await api.listApps();
@@ -63,60 +73,77 @@ export function AppSettingsView({ appId }: Props) {
       </nav>
 
       <div className="settings-panel">
-        {section === "info" && <InfoSection app={app} onChanged={refresh} />}
-        {section === "icon" && <IconSection app={app} iconUrl={iconUrl} onChanged={refresh} />}
-        {section === "security" && <SecuritySection app={app} onChanged={refresh} />}
+        {section === "info" && <InfoSection app={app} onChanged={refresh} onToast={showToast} />}
+        {section === "icon" && <IconSection app={app} iconUrl={iconUrl} onChanged={refresh} onToast={showToast} />}
+        {section === "security" && <SecuritySection app={app} onChanged={refresh} onToast={showToast} />}
         {section === "session" && <SessionSection app={app} />}
         {section === "details" && <DetailsSection app={app} />}
       </div>
+
+      {toast && (
+        <div className={`toast${toast.type === "error" ? " toast-error" : ""}`} role="status">
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
 
-function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void }) {
+function InfoSection({ app, onChanged, onToast }: { app: WebApp; onChanged: () => void; onToast: ToastFn }) {
   const { t } = useTranslation();
-  const [name, setName] = useState(app.name);
-  const [url, setUrl] = useState(app.url);
-  const [hibernateMinutes, setHibernateMinutes] = useState(String(app.hibernate_delay_secs / 60));
+
+  function draftFromApp(a: WebApp) {
+    return {
+      name: a.name,
+      url: a.url,
+      runInBackground: a.run_in_background,
+      eagerLoadSubspaces: a.eager_load_subspaces,
+      hibernateMinutes: String(a.hibernate_delay_secs / 60),
+    };
+  }
+
+  const [draft, setDraft] = useState(() => draftFromApp(app));
 
   useEffect(() => {
-    setName(app.name);
-    setUrl(app.url);
-    setHibernateMinutes(String(app.hibernate_delay_secs / 60));
+    setDraft(draftFromApp(app));
   }, [app.id]);
 
-  async function saveName() {
-    if (name.trim() && name.trim() !== app.name) {
-      await api.renameApp(app.id, name.trim());
-      onChanged();
-    }
+  const isDirty =
+    draft.name !== app.name ||
+    draft.url !== app.url ||
+    draft.runInBackground !== app.run_in_background ||
+    draft.eagerLoadSubspaces !== app.eager_load_subspaces ||
+    draft.hibernateMinutes !== String(app.hibernate_delay_secs / 60);
+
+  function cancel() {
+    setDraft(draftFromApp(app));
   }
 
-  async function saveUrl() {
-    if (url.trim() && url.trim() !== app.url) {
-      await api.setAppUrl(app.id, url.trim());
-      onChanged();
-    }
-  }
-
-  async function toggleBackground(enabled: boolean) {
-    await api.setAppRunInBackground(app.id, enabled);
-    onChanged();
-  }
-
-  async function toggleEagerLoad(enabled: boolean) {
-    await api.setAppEagerLoadSubspaces(app.id, enabled);
-    onChanged();
-  }
-
-  async function saveHibernateDelay() {
-    const minutes = Number(hibernateMinutes);
-    if (Number.isFinite(minutes) && minutes >= 0) {
-      const secs = Math.round(minutes * 60);
-      if (secs !== app.hibernate_delay_secs) {
-        await api.setAppHibernateDelaySecs(app.id, secs);
-        onChanged();
+  async function save() {
+    try {
+      if (draft.name.trim() && draft.name.trim() !== app.name) {
+        await api.renameApp(app.id, draft.name.trim());
       }
+      if (draft.url.trim() && draft.url.trim() !== app.url) {
+        await api.setAppUrl(app.id, draft.url.trim());
+      }
+      if (draft.runInBackground !== app.run_in_background) {
+        await api.setAppRunInBackground(app.id, draft.runInBackground);
+      }
+      if (draft.eagerLoadSubspaces !== app.eager_load_subspaces) {
+        await api.setAppEagerLoadSubspaces(app.id, draft.eagerLoadSubspaces);
+      }
+      const minutes = Number(draft.hibernateMinutes);
+      if (Number.isFinite(minutes) && minutes >= 0) {
+        const secs = Math.round(minutes * 60);
+        if (secs !== app.hibernate_delay_secs) {
+          await api.setAppHibernateDelaySecs(app.id, secs);
+        }
+      }
+      onChanged();
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
     }
   }
 
@@ -126,12 +153,12 @@ function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void })
 
       <label className="settings-field">
         <span>{t("appSettings.info.nameLabel")}</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} onBlur={saveName} />
+        <input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} />
       </label>
 
       <label className="settings-field">
         <span>{t("appSettings.info.urlLabel")}</span>
-        <input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={saveUrl} />
+        <input value={draft.url} onChange={(e) => setDraft((d) => ({ ...d, url: e.target.value }))} />
         <small>{t("appSettings.info.urlHint")}</small>
       </label>
 
@@ -140,8 +167,8 @@ function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void })
           <span>{t("appSettings.info.runInBackgroundLabel")}</span>
           <input
             type="checkbox"
-            checked={app.run_in_background}
-            onChange={(e) => toggleBackground(e.target.checked)}
+            checked={draft.runInBackground}
+            onChange={(e) => setDraft((d) => ({ ...d, runInBackground: e.target.checked }))}
           />
         </label>
         <small>{t("appSettings.info.runInBackgroundHint")}</small>
@@ -154,26 +181,34 @@ function InfoSection({ app, onChanged }: { app: WebApp; onChanged: () => void })
           <span>{t("appSettings.info.eagerLoadLabel")}</span>
           <input
             type="checkbox"
-            checked={app.eager_load_subspaces}
-            onChange={(e) => toggleEagerLoad(e.target.checked)}
+            checked={draft.eagerLoadSubspaces}
+            onChange={(e) => setDraft((d) => ({ ...d, eagerLoadSubspaces: e.target.checked }))}
           />
         </label>
         <small>{t("appSettings.info.eagerLoadHint")}</small>
       </div>
 
-      {!app.eager_load_subspaces && (
+      {!draft.eagerLoadSubspaces && (
         <label className="settings-field">
           <span>{t("appSettings.info.hibernateDelayLabel")}</span>
           <input
             type="number"
             min={0}
             step={1}
-            value={hibernateMinutes}
-            onChange={(e) => setHibernateMinutes(e.target.value)}
-            onBlur={saveHibernateDelay}
+            value={draft.hibernateMinutes}
+            onChange={(e) => setDraft((d) => ({ ...d, hibernateMinutes: e.target.value }))}
           />
           <small>{t("appSettings.info.hibernateDelayHint")}</small>
         </label>
+      )}
+
+      {isDirty && (
+        <div className="settings-actions">
+          <button onClick={save}>{t("common.save")}</button>
+          <button className="ghost" onClick={cancel}>
+            {t("common.cancel")}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -183,38 +218,71 @@ function IconSection({
   app,
   iconUrl,
   onChanged,
+  onToast,
 }: {
   app: WebApp;
   iconUrl?: string;
   onChanged: () => void;
+  onToast: ToastFn;
 }) {
   const { t } = useTranslation();
-  const [padding, setPadding] = useState(app.icon_style.padding_percent);
+
+  function draftFromApp(a: WebApp) {
+    return {
+      iconPath: a.icon,
+      background: a.icon_background_color,
+      fit: a.icon_style.fit,
+      rounded: a.icon_style.rounded,
+      padding: a.icon_style.padding_percent,
+    };
+  }
+
+  const [draft, setDraft] = useState(() => draftFromApp(app));
+  const [draftIconUrl, setDraftIconUrl] = useState(iconUrl);
 
   useEffect(() => {
-    setPadding(app.icon_style.padding_percent);
-  }, [app.icon_style.padding_percent]);
+    setDraft(draftFromApp(app));
+    setDraftIconUrl(iconUrl);
+  }, [app.id]);
 
-  async function update(patch: Partial<WebApp["icon_style"]>) {
-    const next = { ...app.icon_style, ...patch };
-    await api.setAppIconStyle(app.id, next.fit, next.rounded, next.padding_percent);
-    onChanged();
+  const isDirty =
+    draft.iconPath !== app.icon ||
+    draft.background !== app.icon_background_color ||
+    draft.fit !== app.icon_style.fit ||
+    draft.rounded !== app.icon_style.rounded ||
+    draft.padding !== app.icon_style.padding_percent;
+
+  function cancel() {
+    setDraft(draftFromApp(app));
+    setDraftIconUrl(iconUrl);
+  }
+
+  async function onIconResolved(iconPath: string) {
+    setDraft((d) => ({ ...d, iconPath }));
+    setDraftIconUrl(await api.readIconDataUrl(iconPath));
   }
 
   function commitPadding(value: number) {
     const clamped = Math.max(0, Math.min(40, Math.round(value)));
-    setPadding(clamped);
-    update({ padding_percent: clamped });
+    setDraft((d) => ({ ...d, padding: clamped }));
   }
 
-  async function applyIcon(iconPath: string) {
-    await api.setAppIcon(app.id, iconPath);
-    onChanged();
-  }
-
-  async function setBackground(color: string | null) {
-    await api.setAppIconBackground(app.id, color);
-    onChanged();
+  async function save() {
+    try {
+      if (draft.iconPath && draft.iconPath !== app.icon) {
+        await api.setAppIcon(app.id, draft.iconPath);
+      }
+      if (draft.background !== app.icon_background_color) {
+        await api.setAppIconBackground(app.id, draft.background);
+      }
+      if (draft.fit !== app.icon_style.fit || draft.rounded !== app.icon_style.rounded || draft.padding !== app.icon_style.padding_percent) {
+        await api.setAppIconStyle(app.id, draft.fit, draft.rounded, draft.padding);
+      }
+      onChanged();
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
+    }
   }
 
   return (
@@ -224,16 +292,16 @@ function IconSection({
 
       <div style={{ marginTop: "1rem" }}>
         <IconPicker
-          iconUrl={iconUrl}
-          iconPath={app.icon ?? undefined}
-          rounded={app.icon_style.rounded}
-          fit={app.icon_style.fit}
-          background={app.icon_background_color}
-          paddingPercent={padding}
+          iconUrl={draftIconUrl}
+          iconPath={draft.iconPath ?? undefined}
+          rounded={draft.rounded}
+          fit={draft.fit}
+          background={draft.background}
+          paddingPercent={draft.padding}
           fallbackChar={app.name.charAt(0).toUpperCase()}
           searchSeed={app.name}
           onFetchFavicon={() => api.fetchAppFavicon(app.id)}
-          onIconResolved={applyIcon}
+          onIconResolved={onIconResolved}
         />
       </div>
 
@@ -242,10 +310,10 @@ function IconSection({
         <span className="color-row">
           <input
             type="color"
-            value={app.icon_background_color ?? DEFAULT_ICON_BG}
-            onChange={(e) => setBackground(e.target.value)}
+            value={draft.background ?? DEFAULT_ICON_BG}
+            onChange={(e) => setDraft((d) => ({ ...d, background: e.target.value }))}
           />
-          <button className="ghost" onClick={() => setBackground(null)}>
+          <button className="ghost" onClick={() => setDraft((d) => ({ ...d, background: null }))}>
             {t("appSettings.icon.noneButton")}
           </button>
         </span>
@@ -254,8 +322,8 @@ function IconSection({
       <label className="settings-field" style={{ marginTop: "1rem" }}>
         <span>{t("appSettings.icon.fitLabel")}</span>
         <select
-          value={app.icon_style.fit}
-          onChange={(e) => update({ fit: e.target.value as "cover" | "contain" })}
+          value={draft.fit}
+          onChange={(e) => setDraft((d) => ({ ...d, fit: e.target.value as "cover" | "contain" }))}
         >
           <option value="cover">{t("appSettings.icon.fitCover")}</option>
           <option value="contain">{t("appSettings.icon.fitContain")}</option>
@@ -265,8 +333,8 @@ function IconSection({
       <label className="settings-field settings-field-row">
         <span>{t("appSettings.icon.bordersLabel")}</span>
         <select
-          value={app.icon_style.rounded ? "rounded" : "square"}
-          onChange={(e) => update({ rounded: e.target.value === "rounded" })}
+          value={draft.rounded ? "rounded" : "square"}
+          onChange={(e) => setDraft((d) => ({ ...d, rounded: e.target.value === "rounded" }))}
         >
           <option value="rounded">{t("appSettings.icon.bordersRounded")}</option>
           <option value="square">{t("appSettings.icon.bordersSquare")}</option>
@@ -280,28 +348,75 @@ function IconSection({
             type="range"
             min={0}
             max={40}
-            value={padding}
+            value={draft.padding}
             onChange={(e) => commitPadding(Number(e.target.value))}
           />
           <input
             type="number"
             min={0}
             max={40}
-            value={padding}
+            value={draft.padding}
             onChange={(e) => commitPadding(Number(e.target.value))}
           />
           <span className="icon-padding-unit">%</span>
         </span>
       </label>
+
+      {isDirty && (
+        <div className="settings-actions">
+          <button onClick={save}>{t("common.save")}</button>
+          <button className="ghost" onClick={cancel}>
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => void }) {
+function SecuritySection({ app, onChanged, onToast }: { app: WebApp; onChanged: () => void; onToast: ToastFn }) {
   const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  function draftFromApp(a: WebApp) {
+    return {
+      lockOnBackground: a.pin_lock_on_background,
+      lockDelaySecs: a.pin_lock_delay_secs,
+      ignoreCertificateErrors: a.ignore_certificate_errors,
+    };
+  }
+
+  const [draft, setDraft] = useState(() => draftFromApp(app));
+
+  useEffect(() => {
+    setDraft(draftFromApp(app));
+  }, [app.id]);
+
+  const isDirty =
+    draft.lockOnBackground !== app.pin_lock_on_background ||
+    draft.lockDelaySecs !== app.pin_lock_delay_secs ||
+    draft.ignoreCertificateErrors !== app.ignore_certificate_errors;
+
+  function cancel() {
+    setDraft(draftFromApp(app));
+  }
+
+  async function save() {
+    try {
+      if (draft.lockOnBackground !== app.pin_lock_on_background || draft.lockDelaySecs !== app.pin_lock_delay_secs) {
+        await api.setAppPinLock(app.id, draft.lockOnBackground, draft.lockDelaySecs);
+      }
+      if (draft.ignoreCertificateErrors !== app.ignore_certificate_errors) {
+        await api.setAppIgnoreCertificateErrors(app.id, draft.ignoreCertificateErrors);
+      }
+      onChanged();
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
+    }
+  }
 
   const hasPin = app.has_pin;
 
@@ -320,29 +435,21 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
       setPin("");
       setConfirmPin("");
       onChanged();
+      onToast(t("common.saved"));
     } catch {
       setError(t("appSettings.security.pinSetError"));
+      onToast(t("common.saveError"), "error");
     }
   }
 
   async function removePin() {
-    await api.setAppPin(app.id, null);
-    onChanged();
-  }
-
-  async function toggleLockOnBackground(enabled: boolean) {
-    await api.setAppPinLock(app.id, enabled, app.pin_lock_delay_secs);
-    onChanged();
-  }
-
-  async function changeDelay(delaySecs: number) {
-    await api.setAppPinLock(app.id, app.pin_lock_on_background, delaySecs);
-    onChanged();
-  }
-
-  async function toggleIgnoreCertificateErrors(enabled: boolean) {
-    await api.setAppIgnoreCertificateErrors(app.id, enabled);
-    onChanged();
+    try {
+      await api.setAppPin(app.id, null);
+      onChanged();
+      onToast(t("common.saved"));
+    } catch {
+      onToast(t("common.saveError"), "error");
+    }
   }
 
   return (
@@ -363,17 +470,17 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
             <span>{t("appSettings.security.lockOnBackgroundLabel")}</span>
             <input
               type="checkbox"
-              checked={app.pin_lock_on_background}
-              onChange={(e) => toggleLockOnBackground(e.target.checked)}
+              checked={draft.lockOnBackground}
+              onChange={(e) => setDraft((d) => ({ ...d, lockOnBackground: e.target.checked }))}
             />
           </label>
 
-          {app.pin_lock_on_background && (
+          {draft.lockOnBackground && (
             <label className="settings-field">
               <span>{t("appSettings.security.lockDelayLabel")}</span>
               <select
-                value={app.pin_lock_delay_secs}
-                onChange={(e) => changeDelay(Number(e.target.value))}
+                value={draft.lockDelaySecs}
+                onChange={(e) => setDraft((d) => ({ ...d, lockDelaySecs: Number(e.target.value) }))}
               >
                 <option value={0}>{t("appSettings.security.lockDelayImmediate")}</option>
                 <option value={60}>{t("appSettings.security.lockDelay1Min")}</option>
@@ -419,12 +526,21 @@ function SecuritySection({ app, onChanged }: { app: WebApp; onChanged: () => voi
           <span>{t("appSettings.security.ignoreCertErrorsLabel")}</span>
           <input
             type="checkbox"
-            checked={app.ignore_certificate_errors}
-            onChange={(e) => toggleIgnoreCertificateErrors(e.target.checked)}
+            checked={draft.ignoreCertificateErrors}
+            onChange={(e) => setDraft((d) => ({ ...d, ignoreCertificateErrors: e.target.checked }))}
           />
         </label>
         <small>{t("appSettings.security.ignoreCertErrorsHint")}</small>
       </div>
+
+      {isDirty && (
+        <div className="settings-actions">
+          <button onClick={save}>{t("common.save")}</button>
+          <button className="ghost" onClick={cancel}>
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

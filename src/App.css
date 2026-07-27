@@ -782,10 +782,12 @@ button.danger-ghost:hover {
   font-family: "IBM Plex Mono", monospace;
 }
 
-.settings-saved-hint {
-  font-size: 0.78rem;
-  color: var(--accent);
-  margin-top: 0.6rem;
+.settings-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
 }
 
 .icon-preview-row {
@@ -1102,6 +1104,11 @@ button.danger-ghost:hover {
   border-radius: 6px;
   font-size: 0.85rem;
   animation: toast-in 0.12s linear;
+}
+
+.toast-error {
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 @keyframes toast-in {
