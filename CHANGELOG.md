@@ -10,6 +10,7 @@
 
 ### Changed
 - Global Settings navigation restructured into a sectioned sidebar, matching the per-app settings layout.
+- App settings (all tabs) and Global Settings no longer autosave on blur/change: each section now has explicit Save/Cancel buttons that appear only when something changed, plus a success/error toast on save.
 
 ## [0.1.0] - 2026-07-27
 
