@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Popups opened via `window.open()` (e.g. OAuth/"launch" handoff flows) now open as real native windows instead of being redirected into a sidebar tab, preserving the `window.opener` relationship they rely on to reload/close themselves.
+
 ## [0.1.1] - 2026-07-27
 
 ### Added
