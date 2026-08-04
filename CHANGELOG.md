@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Small monochrome GitHub icon next to the version/build info in the dashboard footer, linking to the repo.
+
 ## [0.1.2] - 2026-08-04
 
 ### Fixed

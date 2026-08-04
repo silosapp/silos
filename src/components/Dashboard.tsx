@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import type { WebApp } from "../types";
 import { api } from "../api";
 import { SiteSearch } from "./SiteSearch";
-import { GearIcon, LockIcon, TrashIcon } from "./icons";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { GearIcon, GitHubIcon, LockIcon, TrashIcon } from "./icons";
 import { ConfirmTyped } from "./ConfirmTyped";
 import logo from "../assets/logo.png";
 
@@ -201,11 +202,24 @@ export function Dashboard({ apps, onSelect, onCreate, onDelete, onOpenGlobalSett
       )}
 
       <div className="dashboard-footer">
-        {t("dashboard.footer", {
-          version: __APP_VERSION__,
-          date: new Date(__BUILD_DATE__).toLocaleDateString(),
-          commit: __COMMIT_HASH__,
-        })}
+        <span>
+          {t("dashboard.footer", {
+            version: __APP_VERSION__,
+            date: new Date(__BUILD_DATE__).toLocaleDateString(),
+            commit: __COMMIT_HASH__,
+          })}
+        </span>
+        <a
+          href="#"
+          className="dashboard-footer-github"
+          title="GitHub"
+          onClick={(e) => {
+            e.preventDefault();
+            openUrl("https://github.com/silosapp/silos");
+          }}
+        >
+          <GitHubIcon size={13} />
+        </a>
       </div>
     </div>
   );
