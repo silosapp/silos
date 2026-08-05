@@ -23,6 +23,11 @@ pub fn setup_web_notifications(_app_handle: &tauri::AppHandle, _data_slug: &str,
 
 pub fn setup_password_autosave(_webview: &tauri::webview::Webview) {}
 
+// TODO(linux): WebKitGTK's zoom hotkey polyfill (see tauri's
+// `zoom_hotkeys_enabled` doc) has no equivalent factor-change signal to hook
+// for the HUD; would need to poll or patch the polyfill itself.
+pub fn setup_zoom_indicator(_webview: &tauri::webview::Webview) {}
+
 // TODO(linux): WebKitGTK's equivalent is the `WebKitWebView`
 // "load-failed-with-tls-errors" signal (or pre-allowing via
 // `webkit_web_context_allow_tls_certificate_for_host`) — reachable through

@@ -142,6 +142,40 @@ pub fn allow_self_signed_certificates(webview: &tauri::webview::Webview) {
     });
 }
 
+/// Shows a small "123%" HUD in the bottom-right corner of a tab's page while
+/// its native WebView2 zoom (ctrl+scroll / ctrl+`+`/`-`, enabled via
+/// `zoom_hotkeys_enabled`) is changing, then fades it out. WebView2's zoom
+/// hotkeys are handled entirely inside the browser engine with no JS-visible
+/// event, so the only way to know the factor changed is this COM event on
+/// the controller; the HUD itself is just a floating div injected into the
+/// page (see `ZOOM_HUD_SCRIPT`) and driven via `postWebMessageAsJson` so it
+/// stays in the page's own viewport (and therefore scales/repositions with
+/// the zoom exactly like a real browser's would).
+pub fn setup_zoom_indicator(webview: &tauri::webview::Webview) {
+    use webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2Controller;
+    use webview2_com::ZoomFactorChangedEventHandler;
+
+    let eval_webview = webview.clone();
+    let _ = webview.with_webview(move |pw| {
+        let controller = pw.controller();
+        unsafe {
+            let handler = ZoomFactorChangedEventHandler::create(Box::new(move |sender, _args| {
+                let Some(sender) = sender else { return Ok(()) };
+                let controller: ICoreWebView2Controller = sender;
+                let mut factor: f64 = 1.0;
+                if controller.ZoomFactor(&mut factor).is_err() {
+                    return Ok(());
+                }
+                let pct = (factor * 100.0).round() as i64;
+                let _ = eval_webview.eval(format!("window.__silosZoomHud && window.__silosZoomHud({pct})"));
+                Ok(())
+            }));
+            let mut token: i64 = 0;
+            let _ = controller.add_ZoomFactorChanged(&handler, &mut token);
+        }
+    });
+}
+
 struct SendableNotification(webview2_com::Microsoft::Web::WebView2::Win32::ICoreWebView2Notification);
 unsafe impl Send for SendableNotification {}
 impl SendableNotification {

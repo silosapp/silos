@@ -4,6 +4,7 @@
 
 ### Added
 - Small monochrome GitHub icon next to the version/build info in the dashboard footer, linking to the repo.
+- Text zoom (ctrl+scroll, ctrl+`+`/`-`) enabled in webapp tab content, with a bottom-right HUD showing the current zoom level while it changes. Windows only for now.
 
 ## [0.1.2] - 2026-08-04
 

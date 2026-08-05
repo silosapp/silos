@@ -66,6 +66,35 @@ const NEW_TAB_INTERCEPT_SCRIPT: &str = r#"
 })();
 "#;
 
+/// Injected into every tab so `platform::webview::setup_zoom_indicator`'s
+/// native `ZoomFactorChanged` hook has something to call: WebView2's
+/// ctrl+scroll/ctrl+`+`/`-` zoom (from `.zoom_hotkeys_enabled(true)` below)
+/// is handled entirely inside the browser engine with no JS-visible event,
+/// so the indicator has to be driven from the Rust side via `eval` instead
+/// of a page-side listener. Lives in the page's own viewport (not a
+/// separate OS window) so it tracks the zoomed content exactly like a real
+/// browser's zoom HUD would.
+const ZOOM_HUD_SCRIPT: &str = r#"
+(function () {
+  var el = null;
+  var hideTimer = null;
+  window.__silosZoomHud = function (pct) {
+    if (!el) {
+      el = document.createElement('div');
+      el.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:2147483647;' +
+        'background:rgba(20,20,20,.85);color:#fff;font:600 13px system-ui,sans-serif;' +
+        'padding:6px 10px;border-radius:6px;pointer-events:none;' +
+        'transition:opacity .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.3);opacity:0;';
+      (document.body || document.documentElement).appendChild(el);
+    }
+    el.textContent = pct + '%';
+    el.style.opacity = '1';
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () { el.style.opacity = '0'; }, 900);
+  };
+})();
+"#;
+
 /// Only allow characters that can never escape a single path component
 /// (no `/`, `\`, `..`, NUL, etc.) — `session_group`/`app_slug` end up joined
 /// straight into a filesystem path that later gets `remove_dir_all`'d, so a
@@ -1863,7 +1892,9 @@ fn open_tab_internal(
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut webview_builder = WebviewBuilder::new(&label, webview_url)
         .data_directory(data_dir)
-        .initialization_script(NEW_TAB_INTERCEPT_SCRIPT);
+        .zoom_hotkeys_enabled(true)
+        .initialization_script(NEW_TAB_INTERCEPT_SCRIPT)
+        .initialization_script(ZOOM_HUD_SCRIPT);
     #[cfg(target_os = "macos")]
     {
         webview_builder = webview_builder.data_store_identifier(crate::platform::webview::mac_data_store_id(&data_slug, &session_group));
@@ -1932,6 +1963,7 @@ fn open_tab_internal(
 
     crate::platform::webview::setup_web_notifications(app_handle, &data_slug, app_id, &tab_webview);
     crate::platform::webview::setup_password_autosave(&tab_webview);
+    crate::platform::webview::setup_zoom_indicator(&tab_webview);
     if ignore_certificate_errors {
         crate::platform::webview::allow_self_signed_certificates(&tab_webview);
         let _ = tab_webview.navigate(target_url);

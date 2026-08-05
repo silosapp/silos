@@ -14,6 +14,11 @@ pub fn setup_web_notifications(_app_handle: &tauri::AppHandle, _data_slug: &str,
 
 pub fn setup_password_autosave(_webview: &tauri::webview::Webview) {}
 
+// TODO(macos): WKWebView's own ctrl+scroll/ctrl+`+`/`-` zoom (via
+// `zoom_hotkeys_enabled`'s polyfill on this platform, same as Linux) has no
+// factor-change callback to hook for the HUD.
+pub fn setup_zoom_indicator(_webview: &tauri::webview::Webview) {}
+
 // TODO(macos): WKWebView's equivalent is implementing `WKNavigationDelegate`'s
 // `didReceiveAuthenticationChallenge` and calling back with
 // `.useCredential`/`URLCredential(trust:)` for a `serverTrust` challenge —
