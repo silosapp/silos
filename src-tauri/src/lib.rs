@@ -85,7 +85,15 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             handle_launch_args(app, &args);
         }))
-        .plugin(tauri_plugin_opener::init())
+        // Default `open_js_links_on_click` patches every webview (including
+        // tab content) to intercept target="_blank"/http(s) link clicks and
+        // route them through the `opener` plugin's `open_url` IPC command
+        // before `on_new_window` ever sees them. Tab webviews aren't granted
+        // that command (opening arbitrary page links in the system browser
+        // isn't what should happen there), so the click was silently
+        // swallowed instead of falling through to our own new-window
+        // handling in `commands::open_tab_internal`.
+        .plugin(tauri_plugin_opener::Builder::new().open_js_links_on_click(false).build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {

@@ -8,6 +8,7 @@
 
 ### Fixed
 - `target="_blank"` links with no explicit popup size (e.g. Google's app switcher tiles inside Gmail/Drive/Calendar) now open as a new Silos tab instead of a real, invisible-looking WebView2 popup window that made clicks appear to do nothing.
+- The `opener` plugin's default click interception, which routed every link click in tab content through an IPC command tab webviews aren't permitted to call, was silently swallowing those clicks before they could reach the app's own new-window handling. Disabled in favor of Silos's own link/new-window handling.
 
 ## [0.1.2] - 2026-08-04
 
