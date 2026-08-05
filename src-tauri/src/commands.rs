@@ -1881,6 +1881,10 @@ fn open_tab_internal(
     let subspace_id_title = subspace_id.to_string();
     let tab_id_title = tab_id.clone();
 
+    let handle_popup = app_handle.clone();
+    let app_id_popup = app_id.to_string();
+    let subspace_id_popup = subspace_id.to_string();
+
     // Per-subspace session isolation. `.data_directory()` maps to a real
     // separate profile on Windows (WebView2 environment) and Linux (wry keys
     // a WebKitGTK WebContext off this same path — see tauri-runtime-wry's
@@ -1947,15 +1951,43 @@ fn open_tab_internal(
                         t.title = title.clone();
                     });
                 })
-                // Allow instead of redirecting into a sidebar tab: popups
-                // opened via `window.open()` (OAuth/"launch" style flows,
-                // e.g. Superhuman docs' coda.io reload handoff) rely on a
-                // real `window.opener` relationship with the caller to
-                // signal back and close themselves. Denying and reopening
-                // the URL as an independent tab severs that relationship,
-                // so `window.opener.reload()` / `window.close()` become
-                // no-ops in the popup.
-                .on_new_window(|_new_url, _features| tauri::webview::NewWindowResponse::Allow),
+                // `window.open()`/`target="_blank"` requests come in two
+                // flavors that need opposite handling:
+                //  - real popups (OAuth/"launch" style flows, e.g.
+                //    Superhuman docs' coda.io reload handoff) call
+                //    `window.open(url, name, 'width=…,height=…')` with an
+                //    explicit size, and rely on a genuine `window.opener`
+                //    relationship to signal back and close themselves —
+                //    denying and reopening as an independent tab would sever
+                //    that relationship, breaking `window.opener.reload()` /
+                //    `window.close()`.
+                //  - plain `<a target="_blank">` clicks (no explicit size),
+                //    like Google's app switcher tiles inside Gmail/Drive/
+                //    Calendar — WebView2 routes these through this same
+                //    callback instead of `on_navigation`, and `Allow`-ing
+                //    them opens a real, separate, undecorated WebView2
+                //    popup window with no controls of its own, which looks
+                //    from the user's end like the click did nothing. Since
+                //    there's no size to preserve a "dialog" shape, these
+                //    are opened as a new Silos tab instead, same as a
+                //    ctrl/shift-clicked link (see `NEW_TAB_INTERCEPT_SCRIPT`).
+                .on_new_window(move |new_url, features| {
+                    if features.size().is_some() {
+                        return tauri::webview::NewWindowResponse::Allow;
+                    }
+                    let handle = handle_popup.clone();
+                    let app_id = app_id_popup.clone();
+                    let subspace_id = subspace_id_popup.clone();
+                    std::thread::spawn(move || {
+                        let store = handle.state::<Store>();
+                        let registry = handle.state::<TabRegistry>();
+                        let widths = handle.state::<SidebarWidths>();
+                        let sidebar_width = widths.get(&app_id);
+                        let _ = open_tab_internal(&handle, &store, &registry, sidebar_width, &app_id, &subspace_id, Some(new_url.to_string()));
+                        notify_toolbar(&handle, &app_id, &subspace_id);
+                    });
+                    tauri::webview::NewWindowResponse::Deny
+                }),
             LogicalPosition::new(sidebar_width, TOOLBAR_HEIGHT),
             LogicalSize::new(content_width, tab_height),
         )

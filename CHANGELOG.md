@@ -6,6 +6,9 @@
 - Small monochrome GitHub icon next to the version/build info in the dashboard footer, linking to the repo.
 - Text zoom (ctrl+scroll, ctrl+`+`/`-`) enabled in webapp tab content, with a bottom-right HUD showing the current zoom level while it changes. Windows only for now.
 
+### Fixed
+- `target="_blank"` links with no explicit popup size (e.g. Google's app switcher tiles inside Gmail/Drive/Calendar) now open as a new Silos tab instead of a real, invisible-looking WebView2 popup window that made clicks appear to do nothing.
+
 ## [0.1.2] - 2026-08-04
 
 ### Fixed
