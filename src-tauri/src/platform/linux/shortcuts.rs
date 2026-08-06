@@ -42,9 +42,15 @@ fn desktop_path(app_id: &str) -> Option<PathBuf> {
 /// icon-theme name or an absolute path to PNG/SVG/XPM — an absolute path is
 /// used here, same approach as the `.ico`/`.icns` writers).
 fn build_icon(source: &str, app_id: &str, background: Option<&str>, padding_percent: u8, rounded: bool) -> Option<PathBuf> {
-    let dest = crate::shortcuts::generated_icon_path(app_id, "png");
+    let source_bytes = std::fs::read(source).ok()?;
+    let hash = crate::shortcuts::content_hash(&[
+        &source_bytes,
+        background.unwrap_or("").as_bytes(),
+        &[padding_percent, rounded as u8],
+    ]);
+    let dest = crate::shortcuts::generated_icon_path(app_id, "png", &hash);
     std::fs::create_dir_all(dest.parent()?).ok()?;
-    crate::shortcuts::remove_old_shortcut_icons(app_id);
+    crate::shortcuts::remove_old_shortcut_icons(app_id, &dest);
 
     let resized = crate::shortcuts::render_icon(source, background, padding_percent, rounded)?;
     image::DynamicImage::ImageRgba8(resized).save(&dest).ok()?;

@@ -29,9 +29,15 @@ fn shortcut_path(app_name: &str) -> Option<PathBuf> {
 /// `None` if it couldn't be produced (unsupported/corrupt source), in which
 /// case the caller falls back to the exe's own icon.
 fn build_icon(source: &str, app_id: &str, background: Option<&str>, padding_percent: u8, rounded: bool) -> Option<PathBuf> {
-    let dest = crate::shortcuts::generated_icon_path(app_id, "ico");
+    let source_bytes = std::fs::read(source).ok()?;
+    let hash = crate::shortcuts::content_hash(&[
+        &source_bytes,
+        background.unwrap_or("").as_bytes(),
+        &[padding_percent, rounded as u8],
+    ]);
+    let dest = crate::shortcuts::generated_icon_path(app_id, "ico", &hash);
     std::fs::create_dir_all(dest.parent()?).ok()?;
-    crate::shortcuts::remove_old_shortcut_icons(app_id);
+    crate::shortcuts::remove_old_shortcut_icons(app_id, &dest);
 
     // An already-.ico source is only left byte-for-byte as-is (skipping the
     // rounded mask below) when the app's icon style doesn't need rounding —

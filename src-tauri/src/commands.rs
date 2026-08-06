@@ -458,7 +458,7 @@ pub fn delete_app(app_handle: AppHandle, store: State<Store>, app_id: String) {
 
     if let Some(app) = removed {
         crate::shortcuts::remove_shortcut(&app.id, &app.name);
-        crate::shortcuts::remove_old_shortcut_icons(&app.id);
+        crate::shortcuts::remove_all_shortcut_icons(&app.id);
         let dir = crate::store::webapps_dir().join(&app.data_slug);
         if dir.exists() {
             let _ = std::fs::remove_dir_all(&dir);

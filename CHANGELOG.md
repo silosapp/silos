@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-08-06
+
+### Fixed
+- Webapps pinned to the Windows 11 taskbar turned blank/white after a reboot, requiring an unpin/re-pin to fix. The Start Menu shortcut's icon file was regenerated under a fresh random name on every app launch (not just icon edits), deleting the file the taskbar pin still pointed at. The icon filename is now content-addressed (hashed from the actual icon bytes/style) so it only changes when the icon actually does.
+
 ## [0.1.3] - 2026-08-05
 
 ### Added
